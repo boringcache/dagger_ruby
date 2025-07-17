@@ -8,17 +8,17 @@ Gem::Specification.new do |spec|
   spec.authors = [ "Gaurav Tiwari" ]
   spec.email = [ "gaurav@gauravtiwari.co.uk" ]
 
-  spec.summary = "A Ruby SDK for Dagger"
-  spec.description = "A Ruby SDK for Dagger that provides a simple interface to build and deploy applications"
-  spec.homepage = "https://github.com/boring-build/dagger-ruby"
+  spec.summary = "A Ruby SDK for Dagger - build powerful CI/CD pipelines using Ruby"
+  spec.description = "DaggerRuby provides a fluent, idiomatic Ruby interface to Dagger's container-based CI/CD engine. Define build pipelines programmatically with the full power of Ruby instead of YAML configurations. Features lazy execution, caching, secrets management, and service orchestration."
+  spec.homepage = "https://github.com/boringcache/dagger_ruby"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/boring-build/dagger-ruby"
-  spec.metadata["changelog_uri"] = "https://github.com/boring-build/dagger-ruby/blob/main/CHANGELOG.md"
+  spec.metadata["source_code_uri"] = "https://github.com/boringcache/dagger_ruby"
+  spec.metadata["changelog_uri"] = "https://github.com/boringcache/dagger_ruby/blob/main/CHANGELOG.md"
 
   # Specify which files should be added to the gem when it is released.
   spec.files = Dir.glob(%w[
