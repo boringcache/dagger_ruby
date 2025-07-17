@@ -5,7 +5,7 @@ require_relative "lib/dagger_ruby/version"
 Gem::Specification.new do |spec|
   spec.name = "dagger_ruby"
   spec.version = DaggerRuby::VERSION
-  spec.authors = [ "Gaurav Tiwari" ]
+  spec.authors = [ "Gaurav Tiwari", "Claude Sonnet 4 + GPT-4" ]
   spec.email = [ "gaurav@gauravtiwari.co.uk" ]
 
   spec.summary = "A Ruby SDK for Dagger - build powerful CI/CD pipelines using Ruby"
