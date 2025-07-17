@@ -312,7 +312,7 @@ bundle exec rake test
 
 ## Acknowledgments
 
-Built with ❤️ using **Claude Sonnet 3.5** AI assistance.
+Built with ❤️ using **Claude Sonnet 3.5/4** + **GPT-4** AI assistance.
 
 ## License
 
