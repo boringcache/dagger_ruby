@@ -16,8 +16,9 @@ class TestFile < Minitest::Test
   def test_initialize
     assert_equal @client, @file.instance_variable_get(:@client)
     mock_graphql_response(
-      data: { "file" => { "id" => "file_123" } }
+      data: { "file" => { "id" => "file_123" } },
     )
+
     assert_equal "file_123", @file.id
   end
 
@@ -29,6 +30,7 @@ class TestFile < Minitest::Test
     )
 
     result = @file.name
+
     assert_equal filename, result
   end
 
@@ -41,6 +43,7 @@ class TestFile < Minitest::Test
     )
 
     result = @file.with_name(filename)
+
     assert_instance_of DaggerRuby::File, result
     assert_equal file_id, result.id
   end
@@ -53,6 +56,7 @@ class TestFile < Minitest::Test
     )
 
     result = @file.contents
+
     assert_equal content, result
   end
 
@@ -64,6 +68,7 @@ class TestFile < Minitest::Test
     )
 
     result = @file.size
+
     assert_equal size, result
   end
 
@@ -75,7 +80,8 @@ class TestFile < Minitest::Test
     )
 
     result = @file.export(path)
-    assert_equal true, result
+
+    assert result
   end
 
   def test_with_timestamps_sets_modification_time
@@ -87,6 +93,7 @@ class TestFile < Minitest::Test
     )
 
     result = @file.with_timestamps(timestamp)
+
     assert_instance_of DaggerRuby::File, result
     assert_equal file_id, result.id
   end
@@ -100,12 +107,14 @@ class TestFile < Minitest::Test
     )
 
     result = @file.with_secret(secret)
+
     assert_instance_of DaggerRuby::File, result
     assert_equal file_id, result.id
   end
 
   def test_query_builder_integration
     query_builder = @file.instance_variable_get(:@query_builder)
+
     assert_instance_of DaggerRuby::QueryBuilder, query_builder
     assert_equal "file", query_builder.instance_variable_get(:@root_field)
   end

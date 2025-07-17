@@ -75,10 +75,10 @@ module DaggerRuby
       when NilClass
         "null"
       when Array
-        "[#{value.map { |v| format_value(v) }.join(', ')}]"
+        "[#{value.map { |v| format_value(v) }.join(", ")}]"
       when Hash
         formatted_pairs = value.map { |k, v| "#{k}: #{format_value(v)}" }
-        "{ #{formatted_pairs.join(', ')} }"
+        "{ #{formatted_pairs.join(", ")} }"
       when DaggerObject
         value.id
       else

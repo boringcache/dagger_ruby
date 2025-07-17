@@ -52,11 +52,11 @@ module DaggerRuby
       klass.new(new_query, @client)
     end
 
-    def get_object_array(field, klass, args = {})
+    def get_object_array(field, klass, _args = {})
       query = @query_builder.build_query_with_selection(field)
 
       array_field = query.selections.find { |s| s.field == field }
-      array_field.select("id") if array_field
+      array_field&.select("id")
 
       result = @client.execute(query)
       ids = extract_array_from_result(result, field)

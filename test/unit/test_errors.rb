@@ -10,6 +10,7 @@ class TestErrors < Minitest::Test
   def test_dagger_error_message
     message = "Test error message"
     error = DaggerRuby::DaggerError.new(message)
+
     assert_equal message, error.message
   end
 
@@ -20,6 +21,7 @@ class TestErrors < Minitest::Test
   def test_graphql_error_message
     message = "GraphQL error message"
     error = DaggerRuby::GraphQLError.new(message)
+
     assert_equal message, error.message
   end
 
@@ -30,6 +32,7 @@ class TestErrors < Minitest::Test
   def test_http_error_message
     message = "HTTP error message"
     error = DaggerRuby::HTTPError.new(message)
+
     assert_equal message, error.message
   end
 
@@ -40,6 +43,7 @@ class TestErrors < Minitest::Test
   def test_invalid_query_error_message
     message = "Invalid query error message"
     error = DaggerRuby::InvalidQueryError.new(message)
+
     assert_equal message, error.message
   end
 
@@ -50,6 +54,7 @@ class TestErrors < Minitest::Test
   def test_connection_error_message
     message = "Connection error message"
     error = DaggerRuby::ConnectionError.new(message)
+
     assert_equal message, error.message
   end
 
@@ -62,16 +67,15 @@ class TestErrors < Minitest::Test
   end
 
   def test_error_can_be_raised_and_caught
-    begin
-      raise DaggerRuby::DaggerError, "Test error"
-    rescue DaggerRuby::DaggerError => e
-      assert_equal "Test error", e.message
-    end
+    raise DaggerRuby::DaggerError, "Test error"
+  rescue DaggerRuby::DaggerError => e
+    assert_equal "Test error", e.message
   end
 
   def test_error_with_backtrace
     error = DaggerRuby::DaggerError.new("Test error")
-    error.set_backtrace([ "line1", "line2" ])
-    assert_equal [ "line1", "line2" ], error.backtrace
+    error.set_backtrace(%w[line1 line2])
+
+    assert_equal %w[line1 line2], error.backtrace
   end
 end

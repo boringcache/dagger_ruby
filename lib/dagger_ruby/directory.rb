@@ -111,9 +111,15 @@ module DaggerRuby
 
     def terminal(opts = {})
       args = {}
-      args["container"] = opts[:container].is_a?(DaggerObject) ? opts[:container].id : opts[:container] if opts[:container]
+      if opts[:container]
+        args["container"] =
+          opts[:container].is_a?(DaggerObject) ? opts[:container].id : opts[:container]
+      end
       args["cmd"] = opts[:cmd] if opts[:cmd]
-      args["experimentalPrivilegedNesting"] = opts[:experimental_privileged_nesting] if opts.key?(:experimental_privileged_nesting)
+      if opts.key?(:experimental_privileged_nesting)
+        args["experimentalPrivilegedNesting"] =
+          opts[:experimental_privileged_nesting]
+      end
       args["insecureRootCapabilities"] = opts[:insecure_root_capabilities] if opts.key?(:insecure_root_capabilities)
 
       if args.empty?
@@ -152,10 +158,10 @@ module DaggerRuby
       when NilClass
         "null"
       when Array
-        "[#{value.map { |v| format_value(v) }.join(', ')}]"
+        "[#{value.map { |v| format_value(v) }.join(", ")}]"
       when Hash
         formatted_pairs = value.map { |k, v| "#{k}: #{format_value(v)}" }
-        "{ #{formatted_pairs.join(', ')} }"
+        "{ #{formatted_pairs.join(", ")} }"
       when DaggerObject
         value.id
       else

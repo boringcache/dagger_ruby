@@ -8,7 +8,7 @@ get "/" do
   {
     message: "Hello from Dagger Ruby!",
     timestamp: Time.now.iso8601,
-    version: "1.0.0"
+    version: "1.0.0",
   }.to_json
 end
 
@@ -22,6 +22,6 @@ get "/info" do
   {
     ruby_version: RUBY_VERSION,
     sinatra_version: Sinatra::VERSION,
-    environment: ENV["RACK_ENV"] || "development"
+    environment: ENV["RACK_ENV"] || "development",
   }.to_json
 end

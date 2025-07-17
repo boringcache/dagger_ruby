@@ -23,8 +23,8 @@ class TestRubyBuildQueryValidation < Minitest::Test
 
     # Step 3: Install system packages
     container_with_packages = container_with_cache
-      .with_exec([ "apt-get", "update" ])
-      .with_exec([ "apt-get", "install", "-y", "build-essential", "curl", "git" ])
+                              .with_exec(%w[apt-get update])
+                              .with_exec(["apt-get", "install", "-y", "build-essential", "curl", "git"])
 
     # Validate query structure by checking the operation chain
     query_builder = container_with_packages.instance_variable_get(:@query_builder)
@@ -36,22 +36,23 @@ class TestRubyBuildQueryValidation < Minitest::Test
       "from",
       "withMountedCache",
       "withExec",      # apt-get update
-      "withExec"       # apt-get install
+      "withExec", # apt-get install
     ]
 
     actual_operations = operations.map { |op| op[:field] }
 
     assert_equal expected_operations.length, actual_operations.length,
-      "Expected #{expected_operations.length} operations, got #{actual_operations.length}"
+                 "Expected #{expected_operations.length} operations, got #{actual_operations.length}"
 
     expected_operations.each_with_index do |expected_op, index|
       assert_equal expected_op, actual_operations[index],
-        "Operation #{index}: expected '#{expected_op}', got '#{actual_operations[index]}'"
+                   "Operation #{index}: expected '#{expected_op}', got '#{actual_operations[index]}'"
     end
 
     # Verify cache volume query structure
     cache_query = cache_vol.query_builder.build_query_with_selection("id")
     expected_cache_query = 'query { cacheVolume(key: "apt-builder-test") { id } }'
+
     assert_equal expected_cache_query, cache_query
 
     puts "✅ Complex Ruby build query structure validated successfully!"

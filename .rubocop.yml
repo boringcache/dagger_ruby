@@ -1,2 +1,62 @@
-inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+AllCops:
+  TargetRubyVersion: 3.1
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    - 'coverage/**/*'
+    - 'vendor/**/*'
+    - 'tmp/**/*'
+
+# Disable some common offenses that are too strict for this project
+Style/Documentation:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/StringLiteralsInInterpolation:
+  EnforcedStyle: double_quotes
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/Lambda:
+  EnforcedStyle: literal
+
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: comma
+
+Layout/LineLength:
+  Max: 120
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/ClassLength:
+  Max: 200
+
+Metrics/MethodLength:
+  Max: 30
+
+Metrics/AbcSize:
+  Max: 30
+
+Metrics/CyclomaticComplexity:
+  Max: 12
+
+Metrics/PerceivedComplexity:
+  Max: 12
+
+Lint/DuplicateBranch:
+  Enabled: false
+
+# Naming conventions
+Naming/PredicateMethod:
+  Enabled: false
 

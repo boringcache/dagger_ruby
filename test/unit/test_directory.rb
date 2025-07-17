@@ -16,19 +16,21 @@ class TestDirectory < Minitest::Test
   def test_initialize
     assert_equal @client, @directory.instance_variable_get(:@client)
     mock_graphql_response(
-      data: { "directory" => { "id" => "directory_123" } }
+      data: { "directory" => { "id" => "directory_123" } },
     )
+
     assert_equal "directory_123", @directory.id
   end
 
   def test_entries_returns_file_list
-    files = [ "file1.txt", "file2.rb", "subdir/" ]
+    files = ["file1.txt", "file2.rb", "subdir/"]
 
     mock_graphql_response(
       data: { "directory" => { "entries" => files } },
     )
 
     result = @directory.entries
+
     assert_equal files, result
   end
 
@@ -41,6 +43,7 @@ class TestDirectory < Minitest::Test
     )
 
     result = @directory.file(file_path)
+
     assert_instance_of DaggerRuby::File, result
     assert_equal file_id, result.id
   end
@@ -54,6 +57,7 @@ class TestDirectory < Minitest::Test
     )
 
     result = @directory.directory(dir_path)
+
     assert_instance_of DaggerRuby::Directory, result
     assert_equal dir_id, result.id
   end
@@ -68,6 +72,7 @@ class TestDirectory < Minitest::Test
     )
 
     result = @directory.with_new_file(file_path, contents)
+
     assert_instance_of DaggerRuby::Directory, result
     assert_equal file_id, result.id
   end

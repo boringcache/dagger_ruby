@@ -46,11 +46,11 @@ module DaggerRuby
       args = {}
       args["kill"] = opts[:kill] if opts.key?(:kill)
 
-      if args.empty?
-        query = @query_builder.build_query_with_selection("stop")
-      else
-        query = @query_builder.build_query_with_selection("stop(#{format_arguments(args)})")
-      end
+      query = if args.empty?
+                @query_builder.build_query_with_selection("stop")
+              else
+                @query_builder.build_query_with_selection("stop(#{format_arguments(args)})")
+              end
 
       result = @client.execute(query)
       extract_value_from_result(result, "stop")
@@ -61,11 +61,11 @@ module DaggerRuby
       args["ports"] = opts[:ports] if opts[:ports]
       args["random"] = opts[:random] if opts.key?(:random)
 
-      if args.empty?
-        query = @query_builder.build_query_with_selection("up")
-      else
-        query = @query_builder.build_query_with_selection("up(#{format_arguments(args)})")
-      end
+      query = if args.empty?
+                @query_builder.build_query_with_selection("up")
+              else
+                @query_builder.build_query_with_selection("up(#{format_arguments(args)})")
+              end
 
       result = @client.execute(query)
       extract_value_from_result(result, "up")
@@ -99,10 +99,10 @@ module DaggerRuby
       when NilClass
         "null"
       when Array
-        "[#{value.map { |v| format_value(v) }.join(', ')}]"
+        "[#{value.map { |v| format_value(v) }.join(", ")}]"
       when Hash
         formatted_pairs = value.map { |k, v| "#{k}: #{format_value(v)}" }
-        "{ #{formatted_pairs.join(', ')} }"
+        "{ #{formatted_pairs.join(", ")} }"
       when DaggerObject
         value.id
       else

@@ -113,6 +113,4 @@ class GemPublisher
 end
 
 # Run the publisher
-if __FILE__ == $0
-  GemPublisher.new.publish
-end
+GemPublisher.new.publish if __FILE__ == $PROGRAM_NAME

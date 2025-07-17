@@ -55,11 +55,11 @@ class ReleaseManager
   def update_changelog
     puts "\n📝 Updating CHANGELOG..."
 
-    unless File.exist?("CHANGELOG.md")
+    if File.exist?("CHANGELOG.md")
+      ensure_version_in_changelog
+    else
       puts "Creating CHANGELOG.md..."
       create_initial_changelog
-    else
-      ensure_version_in_changelog
     end
 
     puts "✅ CHANGELOG updated"
@@ -74,7 +74,7 @@ class ReleaseManager
       The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
       and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-      ## [#{@version}] - #{Date.today.strftime('%Y-%m-%d')}
+      ## [#{@version}] - #{Date.today.strftime("%Y-%m-%d")}
 
       ### Added
       - Initial release of DaggerRuby SDK
@@ -102,41 +102,41 @@ class ReleaseManager
   def ensure_version_in_changelog
     changelog = File.read("CHANGELOG.md")
 
-    unless changelog.include?(@version)
-      puts "⚠️  Version #{@version} not found in CHANGELOG.md"
-      puts "Please add an entry for version #{@version} in CHANGELOG.md"
+    return if changelog.include?(@version)
 
-      # Add a placeholder entry
-      today = Date.today.strftime('%Y-%m-%d')
-      new_entry = <<~ENTRY
+    puts "⚠️  Version #{@version} not found in CHANGELOG.md"
+    puts "Please add an entry for version #{@version} in CHANGELOG.md"
 
-        ## [#{@version}] - #{today}
+    # Add a placeholder entry
+    today = Date.today.strftime("%Y-%m-%d")
+    new_entry = <<~ENTRY
 
-        ### Added
-        - [Add your changes here]
+      ## [#{@version}] - #{today}
 
-        ### Changed
-        - [Add your changes here]
+      ### Added
+      - [Add your changes here]
 
-        ### Fixed
-        - [Add your changes here]
+      ### Changed
+      - [Add your changes here]
 
-      ENTRY
+      ### Fixed
+      - [Add your changes here]
 
-      # Insert after the first occurrence of "# Changelog" and any intro text
-      updated_changelog = changelog.sub(
-        /(# Changelog.*?\n\n)/m,
-        "\\1#{new_entry}"
-      )
+    ENTRY
 
-      File.write("CHANGELOG.md", updated_changelog)
-      puts "📝 Added placeholder entry for #{@version} in CHANGELOG.md"
-      puts "Please edit CHANGELOG.md and add your changes before continuing"
+    # Insert after the first occurrence of "# Changelog" and any intro text
+    updated_changelog = changelog.sub(
+      /(# Changelog.*?\n\n)/m,
+      "\\1#{new_entry}",
+    )
 
-      # Wait for user confirmation
-      print "Press Enter when you've updated CHANGELOG.md: "
-      gets
-    end
+    File.write("CHANGELOG.md", updated_changelog)
+    puts "📝 Added placeholder entry for #{@version} in CHANGELOG.md"
+    puts "Please edit CHANGELOG.md and add your changes before continuing"
+
+    # Wait for user confirmation
+    print "Press Enter when you've updated CHANGELOG.md: "
+    gets
   end
 
   def commit_changes
@@ -176,6 +176,4 @@ class ReleaseManager
 end
 
 # Run the release manager
-if __FILE__ == $0
-  ReleaseManager.new.prepare_release
-end
+ReleaseManager.new.prepare_release if __FILE__ == $PROGRAM_NAME

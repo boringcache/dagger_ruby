@@ -12,6 +12,7 @@ class TestService < Minitest::Test
 
   def test_service_from_id
     service = DaggerRuby::Service.from_id("service_123", @client)
+
     assert_instance_of DaggerRuby::Service, service
   end
 
@@ -27,6 +28,7 @@ class TestService < Minitest::Test
       .to_return(status: 200, body: { data: { service: { endpoint: "http://localhost:8080" } } }.to_json)
 
     endpoint = service.endpoint
+
     assert_equal "http://localhost:8080", endpoint
   end
 
@@ -38,6 +40,7 @@ class TestService < Minitest::Test
       .to_return(status: 200, body: { data: { service: { endpoint: "http://localhost:3000" } } }.to_json)
 
     endpoint = service.endpoint(port: 3000)
+
     assert_equal "http://localhost:3000", endpoint
   end
 
@@ -49,6 +52,7 @@ class TestService < Minitest::Test
       .to_return(status: 200, body: { data: { service: { endpoint: "https://localhost:8080" } } }.to_json)
 
     endpoint = service.endpoint(scheme: "https")
+
     assert_equal "https://localhost:8080", endpoint
   end
 
@@ -60,6 +64,7 @@ class TestService < Minitest::Test
       .to_return(status: 200, body: { data: { service: { hostname: "service-host" } } }.to_json)
 
     hostname = service.hostname
+
     assert_equal "service-host", hostname
   end
 
@@ -68,10 +73,11 @@ class TestService < Minitest::Test
 
     stub_request(:post, "http://127.0.0.1:8080/query")
       .with(body: hash_including(query: /service.*ports/))
-      .to_return(status: 200, body: { data: { service: { ports: [ 8080, 3000 ] } } }.to_json)
+      .to_return(status: 200, body: { data: { service: { ports: [8080, 3000] } } }.to_json)
 
     ports = service.ports
-    assert_equal [ 8080, 3000 ], ports
+
+    assert_equal [8080, 3000], ports
   end
 
   def test_start
@@ -82,6 +88,7 @@ class TestService < Minitest::Test
       .to_return(status: 200, body: { data: { service: { start: "service_123" } } }.to_json)
 
     result = service.start
+
     assert_equal "service_123", result
   end
 
@@ -93,6 +100,7 @@ class TestService < Minitest::Test
       .to_return(status: 200, body: { data: { service: { stop: "service_123" } } }.to_json)
 
     result = service.stop
+
     assert_equal "service_123", result
   end
 
@@ -104,6 +112,7 @@ class TestService < Minitest::Test
       .to_return(status: 200, body: { data: { service: { stop: "service_123" } } }.to_json)
 
     result = service.stop(kill: true)
+
     assert_equal "service_123", result
   end
 
@@ -115,6 +124,7 @@ class TestService < Minitest::Test
       .to_return(status: 200, body: { data: { service: { up: "service_123" } } }.to_json)
 
     result = service.up
+
     assert_equal "service_123", result
   end
 
@@ -125,7 +135,8 @@ class TestService < Minitest::Test
       .with(body: hash_including(query: /service.*up.*ports/))
       .to_return(status: 200, body: { data: { service: { up: "service_123" } } }.to_json)
 
-    result = service.up(ports: [ 8080, 3000 ])
+    result = service.up(ports: [8080, 3000])
+
     assert_equal "service_123", result
   end
 
@@ -137,12 +148,14 @@ class TestService < Minitest::Test
       .to_return(status: 200, body: { data: { service: { up: "service_123" } } }.to_json)
 
     result = service.up(random: true)
+
     assert_equal "service_123", result
   end
 
   def test_with_hostname
     service = DaggerRuby::Service.from_id("service_123", @client)
     result = service.with_hostname("custom-host")
+
     assert_instance_of DaggerRuby::Service, result
   end
 
@@ -154,6 +167,7 @@ class TestService < Minitest::Test
       .to_return(status: 200, body: { data: { service: { id: "service_123" } } }.to_json)
 
     result = service.sync
+
     assert_equal service, result
   end
 end

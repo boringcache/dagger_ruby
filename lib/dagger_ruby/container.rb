@@ -14,7 +14,6 @@ module DaggerRuby
       "container"
     end
 
-
     def from(address)
       chain_operation("from", { "address" => address })
     end
@@ -107,7 +106,7 @@ module DaggerRuby
       chain_operation("withUser", { "name" => name })
     end
 
-    def with_registry_auth(address, username, secret)
+    def with_registry_auth(_address, _username, _secret)
       puts "⚠️  Registry auth temporarily disabled due to GraphQL formatting issues"
       self
     end
@@ -119,7 +118,7 @@ module DaggerRuby
     def with_service_binding(alias_name, service)
       args = {
         "alias" => alias_name,
-        "service" => service.is_a?(DaggerObject) ? service.id : service
+        "service" => service.is_a?(DaggerObject) ? service.id : service,
       }
       chain_operation("withServiceBinding", args)
     end
@@ -128,7 +127,10 @@ module DaggerRuby
       args = {}
       args["args"] = opts[:args] if opts[:args]
       args["useEntrypoint"] = opts[:use_entrypoint] if opts.key?(:use_entrypoint)
-      args["experimentalPrivilegedNesting"] = opts[:experimental_privileged_nesting] if opts.key?(:experimental_privileged_nesting)
+      if opts.key?(:experimental_privileged_nesting)
+        args["experimentalPrivilegedNesting"] =
+          opts[:experimental_privileged_nesting]
+      end
       args["insecureRootCapabilities"] = opts[:insecure_root_capabilities] if opts.key?(:insecure_root_capabilities)
       args["expand"] = opts[:expand] if opts.key?(:expand)
       args["noInit"] = opts[:no_init] if opts.key?(:no_init)
@@ -144,15 +146,13 @@ module DaggerRuby
       args["buildArgs"] = opts[:build_args] if opts[:build_args]
 
       if opts[:secrets]
-            raise NotImplementedError, "Build secrets are not yet supported. Use with_mounted_secret instead."
+        raise NotImplementedError, "Build secrets are not yet supported. Use with_mounted_secret instead."
       end
 
       args["noInit"] = opts[:no_init] if opts.key?(:no_init)
 
       chain_operation("build", args)
     end
-
-
 
     def import(source, opts = {})
       args = { "source" => source.is_a?(DaggerObject) ? source.id : source }
@@ -164,7 +164,10 @@ module DaggerRuby
     def terminal(opts = {})
       args = {}
       args["cmd"] = opts[:cmd] if opts[:cmd]
-      args["experimentalPrivilegedNesting"] = opts[:experimental_privileged_nesting] if opts.key?(:experimental_privileged_nesting)
+      if opts.key?(:experimental_privileged_nesting)
+        args["experimentalPrivilegedNesting"] =
+          opts[:experimental_privileged_nesting]
+      end
       args["insecureRootCapabilities"] = opts[:insecure_root_capabilities] if opts.key?(:insecure_root_capabilities)
 
       if args.empty?
@@ -234,7 +237,6 @@ module DaggerRuby
       chain_operation("withoutExposedPort", args)
     end
 
-
     def directory(path, opts = {})
       args = { "path" => path }
       args["expand"] = opts[:expand] if opts.key?(:expand)
@@ -246,7 +248,6 @@ module DaggerRuby
       args["expand"] = opts[:expand] if opts.key?(:expand)
       get_object("file", File, args)
     end
-
 
     def stdout
       get_scalar("stdout")
@@ -355,7 +356,7 @@ module DaggerRuby
     end
 
     def sync
-      get_scalar("id")  # Force execution by getting ID
+      get_scalar("id") # Force execution by getting ID
       self
     end
 
@@ -378,10 +379,10 @@ module DaggerRuby
       when NilClass
         "null"
       when Array
-        "[#{value.map { |v| format_value(v) }.join(', ')}]"
+        "[#{value.map { |v| format_value(v) }.join(", ")}]"
       when Hash
         formatted_pairs = value.map { |k, v| "#{k}: #{format_value(v)}" }
-        "{ #{formatted_pairs.join(', ')} }"
+        "{ #{formatted_pairs.join(", ")} }"
       when DaggerObject
         value.id
       else

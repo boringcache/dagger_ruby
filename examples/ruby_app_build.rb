@@ -7,34 +7,34 @@ DaggerRuby.connection do |client|
   puts "Building Ruby Sinatra application..."
 
   container = client.container
-    .from("ruby:3.4.4")
-    .with_mounted_cache("/usr/local/bundle", cache)
-    .with_directory("/app", app_dir)
-    .with_workdir("/app")
-    .with_exec([ "bundle", "install" ])
+                    .from("ruby:3.4.4")
+                    .with_mounted_cache("/usr/local/bundle", cache)
+                    .with_directory("/app", app_dir)
+                    .with_workdir("/app")
+                    .with_exec(%w[bundle install])
 
   puts "✅ Dependencies installed with bundle install"
 
   syntax_check = container
-    .with_exec([ "ruby", "-c", "app.rb" ])
-    .stdout
+                 .with_exec(["ruby", "-c", "app.rb"])
+                 .stdout
 
   puts "✅ App syntax check passed: #{syntax_check.strip}"
 
   dependency_check = container
-    .with_exec([ "ruby", "-e", "require_relative 'app'; puts 'Dependencies loaded successfully'" ])
-    .stdout
+                     .with_exec(["ruby", "-e", "require_relative 'app'; puts 'Dependencies loaded successfully'"])
+                     .stdout
 
   puts "✅ Dependencies check: #{dependency_check.strip}"
 
   startup_test = container
-    .with_exec([ "timeout", "5", "ruby", "-e", "
+                 .with_exec(["timeout", "5", "ruby", "-e", "
       require_relative 'app'
       puts 'App can start successfully'
       puts 'Sinatra version: ' + Sinatra::VERSION
       puts 'Ruby version: ' + RUBY_VERSION
-    " ])
-    .stdout
+    "])
+                 .stdout
 
   puts "✅ Startup test results:"
   puts startup_test

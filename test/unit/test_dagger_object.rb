@@ -20,17 +20,18 @@ class TestDaggerObject < Minitest::Test
 
   def test_id_uniqueness
     mock_graphql_response(
-      data: { "test" => { "id" => "test_123" } }
+      data: { "test" => { "id" => "test_123" } },
     )
 
     obj1 = DaggerRuby::DaggerObject.new(@query_builder, @client)
     obj2 = DaggerRuby::DaggerObject.new(@query_builder, @client)
+
     assert_equal obj1.id, obj2.id
   end
 
   def test_get_object_creates_new_instance
     mock_graphql_response(
-      data: { "test" => { "id" => "test_123" } }
+      data: { "test" => { "id" => "test_123" } },
     )
 
     query = "test_query"

@@ -35,10 +35,10 @@ class GemValidator
   def check_version_format
     puts "\n📋 Checking version format..."
 
-    unless @version =~ /^\d+\.\d+\.\d+$/
-      @errors << "Version format should be x.y.z (current: #{@version})"
-    else
+    if @version =~ /^\d+\.\d+\.\d+$/
       puts "✅ Version format is valid: #{@version}"
+    else
+      @errors << "Version format should be x.y.z (current: #{@version})"
     end
   end
 
@@ -51,10 +51,10 @@ class GemValidator
     end
 
     changelog = File.read("CHANGELOG.md")
-    unless changelog.include?(@version)
-      @warnings << "CHANGELOG.md doesn't mention version #{@version}"
-    else
+    if changelog.include?(@version)
       puts "✅ CHANGELOG.md includes version #{@version}"
+    else
+      @warnings << "CHANGELOG.md doesn't mention version #{@version}"
     end
   end
 
@@ -77,10 +77,10 @@ class GemValidator
   def check_license
     puts "\n⚖️  Checking license..."
 
-    unless File.exist?("LICENSE.txt")
-      @errors << "LICENSE.txt is missing"
-    else
+    if File.exist?("LICENSE.txt")
       puts "✅ LICENSE.txt exists"
+    else
+      @errors << "LICENSE.txt is missing"
     end
   end
 
@@ -90,32 +90,20 @@ class GemValidator
     begin
       spec = Gem::Specification.load("#{@gem_name}.gemspec")
 
-      if spec.summary.nil? || spec.summary.empty?
-        @errors << "Gemspec summary is empty"
-      end
+      @errors << "Gemspec summary is empty" if spec.summary.nil? || spec.summary.empty?
 
-      if spec.description.nil? || spec.description.empty?
-        @errors << "Gemspec description is empty"
-      end
+      @errors << "Gemspec description is empty" if spec.description.nil? || spec.description.empty?
 
-      if spec.homepage.nil? || spec.homepage.empty?
-        @errors << "Gemspec homepage is empty"
-      end
+      @errors << "Gemspec homepage is empty" if spec.homepage.nil? || spec.homepage.empty?
 
-      if spec.license.nil? || spec.license.empty?
-        @errors << "Gemspec license is empty"
-      end
+      @errors << "Gemspec license is empty" if spec.license.nil? || spec.license.empty?
 
-      if spec.authors.empty?
-        @errors << "Gemspec authors is empty"
-      end
+      @errors << "Gemspec authors is empty" if spec.authors.empty?
 
-      if spec.email.empty?
-        @errors << "Gemspec email is empty"
-      end
+      @errors << "Gemspec email is empty" if spec.email.empty?
 
       puts "✅ Gemspec validation passed"
-    rescue => e
+    rescue StandardError => e
       @errors << "Gemspec validation failed: #{e.message}"
     end
   end
@@ -124,21 +112,21 @@ class GemValidator
     puts "\n🔍 Checking code quality..."
 
     # Run RuboCop
-    unless system("bundle exec rubocop --format quiet > /dev/null 2>&1")
-      @errors << "RuboCop linting failed"
-    else
+    if system("bundle exec rubocop --format quiet > /dev/null 2>&1")
       puts "✅ RuboCop linting passed"
+    else
+      @errors << "RuboCop linting failed"
     end
   end
 
   def check_tests
     puts "\n🧪 Checking tests..."
 
-    unless system("bundle exec rake test > /dev/null 2>&1")
-      @errors << "Tests are failing"
-    else
+    if system("bundle exec rake test > /dev/null 2>&1")
       test_count = `bundle exec rake test 2>/dev/null | grep -o '[0-9]\\+ tests' | head -1`.strip
       puts "✅ All tests pass (#{test_count})"
+    else
+      @errors << "Tests are failing"
     end
   end
 
@@ -146,18 +134,12 @@ class GemValidator
     puts "\n🔄 Checking git status..."
 
     current_branch = `git rev-parse --abbrev-ref HEAD`.strip
-    unless current_branch == "main"
-      @warnings << "Not on main branch (currently on: #{current_branch})"
-    end
+    @warnings << "Not on main branch (currently on: #{current_branch})" unless current_branch == "main"
 
-    unless `git status --porcelain`.strip.empty?
-      @errors << "Working directory has uncommitted changes"
-    end
+    @errors << "Working directory has uncommitted changes" unless `git status --porcelain`.strip.empty?
 
     # Check if version is tagged
-    unless system("git tag -l | grep -q '^v#{@version}$'")
-      @warnings << "Version v#{@version} is not tagged"
-    end
+    @warnings << "Version v#{@version} is not tagged" unless system("git tag -l | grep -q '^v#{@version}$'")
 
     puts "✅ Git status checked"
   end
@@ -165,17 +147,17 @@ class GemValidator
   def check_dependencies
     puts "\n📦 Checking dependencies..."
 
-    unless system("bundle check > /dev/null 2>&1")
-      @errors << "Bundle check failed - run 'bundle install'"
-    else
+    if system("bundle check > /dev/null 2>&1")
       puts "✅ Dependencies are satisfied"
+    else
+      @errors << "Bundle check failed - run 'bundle install'"
     end
   end
 
   def display_results
-    puts "\n" + "="*60
+    puts "\n#{"=" * 60}"
     puts "🎯 VALIDATION RESULTS"
-    puts "="*60
+    puts "=" * 60
 
     if @errors.empty? && @warnings.empty?
       puts "✅ All checks passed! Ready to publish."
@@ -195,12 +177,12 @@ class GemValidator
     puts "  Version: #{@version}"
     puts "  Errors: #{@errors.length}"
     puts "  Warnings: #{@warnings.length}"
-    puts "  Ready to publish: #{@errors.empty? ? 'Yes' : 'No'}"
+    puts "  Ready to publish: #{@errors.empty? ? "Yes" : "No"}"
   end
 end
 
 # Run the validator
-if __FILE__ == $0
+if __FILE__ == $PROGRAM_NAME
   validator = GemValidator.new
   success = validator.validate
   exit(success ? 0 : 1)

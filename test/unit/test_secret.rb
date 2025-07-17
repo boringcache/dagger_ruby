@@ -16,8 +16,9 @@ class TestSecret < Minitest::Test
   def test_initialize
     assert_equal @client, @secret.instance_variable_get(:@client)
     mock_graphql_response(
-      data: { "secret" => { "id" => "secret_123" } }
+      data: { "secret" => { "id" => "secret_123" } },
     )
+
     assert_equal "secret_123", @secret.id
   end
 
@@ -29,6 +30,7 @@ class TestSecret < Minitest::Test
     )
 
     result = @secret.name
+
     assert_equal name, result
   end
 
@@ -40,6 +42,7 @@ class TestSecret < Minitest::Test
     )
 
     result = @secret.plaintext
+
     assert_equal value, result
   end
 
@@ -52,12 +55,14 @@ class TestSecret < Minitest::Test
     )
 
     result = container.with_secret_variable("SECRET_KEY", @secret)
+
     assert_instance_of DaggerRuby::Container, result
     assert_equal container_id, result.id
   end
 
   def test_query_builder_integration
     query_builder = @secret.instance_variable_get(:@query_builder)
+
     assert_instance_of DaggerRuby::QueryBuilder, query_builder
     assert_equal "secret", query_builder.instance_variable_get(:@root_field)
   end

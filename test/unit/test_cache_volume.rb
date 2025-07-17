@@ -16,13 +16,15 @@ class TestCacheVolume < Minitest::Test
   def test_initialize
     assert_equal @client, @cache_volume.instance_variable_get(:@client)
     mock_graphql_response(
-      data: { "cacheVolume" => { "id" => "cache_123" } }
+      data: { "cacheVolume" => { "id" => "cache_123" } },
     )
+
     assert_equal "cache_123", @cache_volume.id
   end
 
   def test_query_builder_integration
     query_builder = @cache_volume.instance_variable_get(:@query_builder)
+
     assert_instance_of DaggerRuby::QueryBuilder, query_builder
     assert_equal "cacheVolume", query_builder.instance_variable_get(:@root_field)
   end

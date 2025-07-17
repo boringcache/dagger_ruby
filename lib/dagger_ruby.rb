@@ -25,14 +25,14 @@ module DaggerRuby
         require "open3"
 
         # Get the current script and its arguments
-        script = $0
+        script = $PROGRAM_NAME
         args = ARGV
 
         # Construct the command that dagger should run
-        ruby_cmd = [ "ruby", script, *args ].join(" ")
+        ruby_cmd = ["ruby", script, *args].join(" ")
 
         # Run dagger with our command
-        cmd = [ "dagger", "run", ruby_cmd ].join(" ")
+        cmd = ["dagger", "run", ruby_cmd].join(" ")
 
         # Execute the command
         exec(cmd)

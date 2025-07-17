@@ -15,7 +15,7 @@ module DaggerRuby
 
     def chain_operation(field, args = {})
       new_query = QueryBuilder.new(@root_field)
-      new_query.instance_variable_set(:@operation_chain, @operation_chain + [ { field: field, args: args } ])
+      new_query.instance_variable_set(:@operation_chain, @operation_chain + [{ field: field, args: args }])
       new_query.instance_variable_set(:@variables, @variables.dup)
       new_query
     end
@@ -66,11 +66,11 @@ module DaggerRuby
 
       if @operation_chain.length > 1
         result << " { "
-        @operation_chain[1..-1].each do |op|
+        @operation_chain[1..].each do |op|
           result << "#{op[:field]}#{format_arguments(op[:args])} { "
         end
         result << field
-        result << " }" * @operation_chain.length
+        result << (" }" * @operation_chain.length)
       else
         result << " { #{field} }"
       end
@@ -81,7 +81,7 @@ module DaggerRuby
     def format_arguments(args)
       return "" if args.empty?
 
-      "(#{args.map { |key, value| "#{key}: #{format_value(value)}" }.join(', ')})"
+      "(#{args.map { |key, value| "#{key}: #{format_value(value)}" }.join(", ")})"
     end
 
     def format_value(value)
@@ -97,12 +97,12 @@ module DaggerRuby
       when NilClass
         "null"
       when Array
-        "[#{value.map { |v| format_value(v) }.join(', ')}]"
+        "[#{value.map { |v| format_value(v) }.join(", ")}]"
       when Hash
         if value[:type] && value[:value]
           value[:value].to_s
         else
-          "{#{value.map { |k, v| "#{k}: #{format_value(v)}" }.join(', ')}}"
+          "{#{value.map { |k, v| "#{k}: #{format_value(v)}" }.join(", ")}}"
         end
       else
         value.to_s
@@ -110,15 +110,15 @@ module DaggerRuby
     end
 
     def escape_string(str)
-      str.gsub(/["\\\n\r\t]/) do |c|
-        case c
-        when '"' then '\\"'
-        when "\\" then "\\\\"
-        when "\n" then '\\n'
-        when "\r" then '\\r'
-        when "\t" then '\\t'
-        end
-      end
+      escape_map = {
+        '"' => '\\"',
+        "\\" => "\\\\",
+        "\n" => '\\n',
+        "\r" => '\\r',
+        "\t" => '\\t',
+      }
+
+      str.gsub(/["\\\n\r\t]/) { |c| escape_map[c] }
     end
   end
 end

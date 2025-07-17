@@ -14,13 +14,12 @@ module DaggerRuby
       "cacheVolume"
     end
 
-
     def key
       get_scalar("key")
     end
 
     def sync
-        get_scalar("id")  # Force execution by getting ID
+      get_scalar("id") # Force execution by getting ID
       self
     end
   end

@@ -22,11 +22,12 @@ module DaggerRuby
     def initialize(config: nil)
       @config = config || Config.new
 
-      port = ENV["DAGGER_SESSION_PORT"]
-      @session_token = ENV["DAGGER_SESSION_TOKEN"]
+      port = ENV.fetch("DAGGER_SESSION_PORT", nil)
+      @session_token = ENV.fetch("DAGGER_SESSION_TOKEN", nil)
 
       unless port && @session_token
-        raise ConnectionError, "This script must be run within a Dagger session.\nRun with: dagger run ruby script.rb [args...]"
+        raise ConnectionError,
+              "This script must be run within a Dagger session.\nRun with: dagger run ruby script.rb [args...]"
       end
 
       @endpoint = "http://127.0.0.1:#{port}/query"
@@ -41,18 +42,18 @@ module DaggerRuby
 
       begin
         execute_query("query { container { id } }")
-      rescue => e
+      rescue StandardError => e
         raise ConnectionError, "Failed to connect to Dagger engine: #{e.message}"
       end
     end
 
     def container(opts = {})
       query = QueryBuilder.new
-      if opts[:platform]
-        query = query.chain_operation("container", { "platform" => opts[:platform] })
-      else
-        query = query.chain_operation("container")
-      end
+      query = if opts[:platform]
+                query.chain_operation("container", { "platform" => opts[:platform] })
+              else
+                query.chain_operation("container")
+              end
       Container.new(query, self)
     end
 
@@ -82,10 +83,19 @@ module DaggerRuby
       args = { "url" => url }
       args["keepGitDir"] = opts[:keep_git_dir] if opts.key?(:keep_git_dir)
       args["sshKnownHosts"] = opts[:ssh_known_hosts] if opts[:ssh_known_hosts]
-      args["sshAuthSocket"] = opts[:ssh_auth_socket].is_a?(DaggerObject) ? opts[:ssh_auth_socket].id : opts[:ssh_auth_socket] if opts[:ssh_auth_socket]
+      if opts[:ssh_auth_socket]
+        args["sshAuthSocket"] =
+          opts[:ssh_auth_socket].is_a?(DaggerObject) ? opts[:ssh_auth_socket].id : opts[:ssh_auth_socket]
+      end
       args["httpAuthUsername"] = opts[:http_auth_username] if opts[:http_auth_username]
-      args["httpAuthToken"] = opts[:http_auth_token].is_a?(DaggerObject) ? opts[:http_auth_token].id : opts[:http_auth_token] if opts[:http_auth_token]
-      args["httpAuthHeader"] = opts[:http_auth_header].is_a?(DaggerObject) ? opts[:http_auth_header].id : opts[:http_auth_header] if opts[:http_auth_header]
+      if opts[:http_auth_token]
+        args["httpAuthToken"] =
+          opts[:http_auth_token].is_a?(DaggerObject) ? opts[:http_auth_token].id : opts[:http_auth_token]
+      end
+      if opts[:http_auth_header]
+        args["httpAuthHeader"] =
+          opts[:http_auth_header].is_a?(DaggerObject) ? opts[:http_auth_header].id : opts[:http_auth_header]
+      end
 
       query = QueryBuilder.new
       query = query.chain_operation("git", args)
@@ -96,7 +106,10 @@ module DaggerRuby
       args = { "url" => url }
       args["name"] = opts[:name] if opts[:name]
       args["permissions"] = opts[:permissions] if opts[:permissions]
-      args["authHeader"] = opts[:auth_header].is_a?(DaggerObject) ? opts[:auth_header].id : opts[:auth_header] if opts[:auth_header]
+      if opts[:auth_header]
+        args["authHeader"] =
+          opts[:auth_header].is_a?(DaggerObject) ? opts[:auth_header].id : opts[:auth_header]
+      end
 
       query = QueryBuilder.new
       query = query.chain_operation("http", args)
@@ -109,8 +122,7 @@ module DaggerRuby
       Secret.new(query, self)
     end
 
-    def close
-    end
+    def close; end
 
     def execute_query(query)
       http = Net::HTTP.new(@uri.host, @uri.port)
@@ -140,17 +152,11 @@ module DaggerRuby
           raise GraphQLError, "Invalid JSON response from server"
         end
 
-        if parsed_body.nil?
-          raise GraphQLError, "Empty response from server"
-        end
+        raise GraphQLError, "Empty response from server" if parsed_body.nil?
 
-        if parsed_body["errors"]
-          raise GraphQLError, parsed_body["errors"].map { |e| e["message"] }.join(", ")
-        end
+        raise GraphQLError, parsed_body["errors"].map { |e| e["message"] }.join(", ") if parsed_body["errors"]
 
-        if parsed_body["data"].nil?
-          raise GraphQLError, "No data in response"
-        end
+        raise GraphQLError, "No data in response" if parsed_body["data"].nil?
 
         parsed_body["data"]
       when 400
