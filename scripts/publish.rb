@@ -44,14 +44,6 @@ class GemPublisher
       exit 1
     end
 
-    # Check if gem push credentials are configured
-    puts "  Checking RubyGems credentials..."
-    unless system("gem push --help > /dev/null 2>&1") && File.exist?(File.expand_path("~/.gem/credentials"))
-      puts "❌ RubyGems credentials not configured"
-      puts "Run: gem signin"
-      exit 1
-    end
-
     puts "✅ Environment validated"
   end
 
