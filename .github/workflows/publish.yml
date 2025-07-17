@@ -1,0 +1,44 @@
+name: Publish Gem
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.4.4'
+        bundler-cache: true
+    
+    - name: Validate gem
+      run: |
+        ruby scripts/validate.rb
+    
+    - name: Build gem
+      run: |
+        gem build dagger_ruby.gemspec
+    
+    - name: Publish to RubyGems
+      run: |
+        mkdir -p ~/.gem
+        echo ":rubygems_api_key: ${RUBYGEMS_API_KEY}" > ~/.gem/credentials
+        chmod 600 ~/.gem/credentials
+        gem push dagger_ruby-*.gem
+      env:
+        RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dagger_ruby-*.gem
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
