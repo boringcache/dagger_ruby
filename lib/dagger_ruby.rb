@@ -31,8 +31,11 @@ module DaggerRuby
         # Construct the command that dagger should run
         ruby_cmd = ["ruby", script, *args].join(" ")
 
-        # Run dagger with our command
-        cmd = ["dagger", "run", ruby_cmd].join(" ")
+        # Get log level from config or environment
+        log_level = config&.engine_log_level || ENV["DAGGER_LOG_LEVEL"] || "warn"
+
+        # Run dagger with our command and log level
+        cmd = ["dagger", "--log-level", log_level, "run", ruby_cmd].join(" ")
 
         # Execute the command
         exec(cmd)
