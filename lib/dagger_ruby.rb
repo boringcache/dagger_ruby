@@ -31,14 +31,15 @@ module DaggerRuby
         # Construct the command that dagger should run
         ruby_cmd = ["ruby", script, *args].join(" ")
 
-        # Get log level from config or environment
-        log_level = config&.engine_log_level || ENV["DAGGER_LOG_LEVEL"] || "warn"
-
-        # Get progress format from config or environment
+        # Get verbosity options from config or environment
+        quiet = config&.quiet || ENV["DAGGER_QUIET"]&.to_i
+        silent = config&.silent || ENV["DAGGER_SILENT"] == "true"
         progress = config&.progress || ENV.fetch("DAGGER_PROGRESS", nil)
 
         # Build dagger command with options
-        cmd_parts = ["dagger", "--log-level", log_level]
+        cmd_parts = ["dagger"]
+        cmd_parts += ["-q"] * quiet if quiet&.positive?
+        cmd_parts += ["--silent"] if silent
         cmd_parts += ["--progress", progress] if progress
         cmd_parts += ["run", ruby_cmd]
         cmd = cmd_parts.join(" ")

@@ -9,7 +9,8 @@ class TestConfig < Minitest::Test
     assert_nil config.log_output
     assert_nil config.workdir
     assert_equal 600, config.timeout
-    assert_equal "warn", config.engine_log_level
+    assert_nil config.quiet
+    assert_equal false, config.silent
     assert_nil config.progress
   end
 
@@ -36,32 +37,29 @@ class TestConfig < Minitest::Test
       log_output: $stderr,
       workdir: "/app",
       timeout: 120,
-      engine_log_level: "error",
+      quiet: 2,
+      silent: true,
       progress: "plain",
     )
 
     assert_equal $stderr, config.log_output
     assert_equal "/app", config.workdir
     assert_equal 120, config.timeout
-    assert_equal "error", config.engine_log_level
+    assert_equal 2, config.quiet
+    assert_equal true, config.silent
     assert_equal "plain", config.progress
   end
 
-  def test_config_with_engine_log_level
-    config = DaggerRuby::Config.new(engine_log_level: "debug")
+  def test_config_with_quiet
+    config = DaggerRuby::Config.new(quiet: 1)
 
-    assert_equal "debug", config.engine_log_level
+    assert_equal 1, config.quiet
   end
 
-  def test_config_engine_log_level_from_env
-    original_env = ENV.fetch("DAGGER_LOG_LEVEL", nil)
-    ENV["DAGGER_LOG_LEVEL"] = "trace"
+  def test_config_with_silent
+    config = DaggerRuby::Config.new(silent: true)
 
-    config = DaggerRuby::Config.new
-
-    assert_equal "trace", config.engine_log_level
-  ensure
-    ENV["DAGGER_LOG_LEVEL"] = original_env
+    assert_equal true, config.silent
   end
 
   def test_config_with_progress
@@ -79,5 +77,27 @@ class TestConfig < Minitest::Test
     assert_equal "dots", config.progress
   ensure
     ENV["DAGGER_PROGRESS"] = original_env
+  end
+
+  def test_config_quiet_from_env
+    original_env = ENV.fetch("DAGGER_QUIET", nil)
+    ENV["DAGGER_QUIET"] = "2"
+
+    config = DaggerRuby::Config.new
+
+    assert_equal 2, config.quiet
+  ensure
+    ENV["DAGGER_QUIET"] = original_env
+  end
+
+  def test_config_silent_from_env
+    original_env = ENV.fetch("DAGGER_SILENT", nil)
+    ENV["DAGGER_SILENT"] = "true"
+
+    config = DaggerRuby::Config.new
+
+    assert_equal true, config.silent
+  ensure
+    ENV["DAGGER_SILENT"] = original_env
   end
 end
