@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2025-09-17
+
+  Programmatic Control:
+
+  config = DaggerRuby::Config.new(
+    engine_log_level: "error",  # Only errors
+    progress: "plain"           # Clean progress format
+  )
+  DaggerRuby.connection(config) do |client|
+    # Your operations with clean output
+  end
+
+  📋 Progress Options:
+
+  - plain - Simple text progress (no fancy symbols like ▶ ●)
+  - dots - Just dots for progress
+  - tty - Full fancy output (default)
+  - auto - Auto-detect based on terminal
+
+  🎯 What This Eliminates:
+
+  - All the ▶ connect, ● container: symbols
+  - Timing information like 0.7s, 3.6s CACHED
+  - Complex tree-style progress display
+
 ## [0.4.0] - 2025-09-17
 
 1. Environment Variable (Easiest)

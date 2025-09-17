@@ -10,6 +10,7 @@ class TestConfig < Minitest::Test
     assert_nil config.workdir
     assert_equal 600, config.timeout
     assert_equal "warn", config.engine_log_level
+    assert_nil config.progress
   end
 
   def test_config_with_log_output
@@ -36,12 +37,14 @@ class TestConfig < Minitest::Test
       workdir: "/app",
       timeout: 120,
       engine_log_level: "error",
+      progress: "plain",
     )
 
     assert_equal $stderr, config.log_output
     assert_equal "/app", config.workdir
     assert_equal 120, config.timeout
     assert_equal "error", config.engine_log_level
+    assert_equal "plain", config.progress
   end
 
   def test_config_with_engine_log_level
@@ -59,5 +62,22 @@ class TestConfig < Minitest::Test
     assert_equal "trace", config.engine_log_level
   ensure
     ENV["DAGGER_LOG_LEVEL"] = original_env
+  end
+
+  def test_config_with_progress
+    config = DaggerRuby::Config.new(progress: "plain")
+
+    assert_equal "plain", config.progress
+  end
+
+  def test_config_progress_from_env
+    original_env = ENV.fetch("DAGGER_PROGRESS", nil)
+    ENV["DAGGER_PROGRESS"] = "dots"
+
+    config = DaggerRuby::Config.new
+
+    assert_equal "dots", config.progress
+  ensure
+    ENV["DAGGER_PROGRESS"] = original_env
   end
 end

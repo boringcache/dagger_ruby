@@ -34,8 +34,14 @@ module DaggerRuby
         # Get log level from config or environment
         log_level = config&.engine_log_level || ENV["DAGGER_LOG_LEVEL"] || "warn"
 
-        # Run dagger with our command and log level
-        cmd = ["dagger", "--log-level", log_level, "run", ruby_cmd].join(" ")
+        # Get progress format from config or environment
+        progress = config&.progress || ENV.fetch("DAGGER_PROGRESS", nil)
+
+        # Build dagger command with options
+        cmd_parts = ["dagger", "--log-level", log_level]
+        cmd_parts += ["--progress", progress] if progress
+        cmd_parts += ["run", ruby_cmd]
+        cmd = cmd_parts.join(" ")
 
         # Execute the command
         exec(cmd)
