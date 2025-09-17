@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2025-09-17
+
+1. Environment Variable (Easiest)
+
+export DAGGER_LOG_LEVEL=error  # Only show errors
+# or
+DAGGER_LOG_LEVEL=warn your_ruby_script.rb  # Only warnings and errors
+
+2. Programmatic Configuration
+
+config = DaggerRuby::Config.new(engine_log_level: "error")
+DaggerRuby.connection(config) do |client|
+# Your dagger operations with minimal logging
+end
+
+3. Available Log Levels (from most to least verbose):
+
+- trace - Everything (most verbose)
+- debug - Default Dagger behavior
+- info - Informational messages
+- warn - Warnings and errors (new default)
+- error - Only errors (cleanest output)
+
+What Changed:
+
+- Added engine_log_level to Config class (lib/dagger_ruby/config.rb:5)
+- Modified dagger run command to pass --log-level flag (lib/dagger_ruby.rb:35-38)
+- Environment variable DAGGER_LOG_LEVEL support
+- Tests updated and passing
+
 ## [0.3.0] - 2024-12-19
 
 ### Fixed 
