@@ -29,7 +29,7 @@ module DaggerRuby
     end
 
     def with_directory(path, directory, opts = {})
-      args = { "path" => path, "directory" => directory.is_a?(DaggerObject) ? directory.id : directory }
+      args = { "path" => path, "source" => directory.is_a?(DaggerObject) ? directory.id : directory }
       args["exclude"] = opts[:exclude] if opts[:exclude]
       args["include"] = opts[:include] if opts[:include]
 

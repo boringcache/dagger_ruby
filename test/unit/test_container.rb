@@ -94,7 +94,7 @@ class TestContainer < Minitest::Test
 
     query = new_container.instance_variable_get(:@query_builder)
 
-    assert_equal [{ field: "withDirectory", args: { "path" => path, "directory" => "dir_123" } }],
+    assert_equal [{ field: "withDirectory", args: { "path" => path, "source" => "dir_123" } }],
                  query.operation_chain
   end
 
