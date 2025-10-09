@@ -5,14 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.7.0] - 2025-01-27
+## [0.8.0] - 2025-01-27
 
 ### Fixed
 
-- **Code Quality**: Refactored `DaggerRuby.connection` method to reduce cyclomatic complexity from 13 to under 12 and perceived complexity from 15 to under 12
 - **Code Quality**: Simplified `Config#initialize` method by replacing 6 individual keyword parameters with a single hash parameter
 - **Tests**: Fixed test assertion in `test_with_directory_mounts_directory` to align with Dagger API - changed from `"directory"` to `"source"` key in `withDirectory` operation arguments
-- **Environment Variables**: Improved environment variable handling using `ENV.fetch` for more consistent nil handling
 
 ### Changed
 
@@ -22,7 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Technical Details
 
-- Broke down complex `connection` method into focused helper methods: `existing_session?`, `handle_existing_session`, `start_new_session`, `build_dagger_command`, `build_ruby_command`, `build_dagger_options`
 - Maintained backward compatibility - all existing code continues to work without changes
 - All tests pass with improved code structure and maintainability
 
