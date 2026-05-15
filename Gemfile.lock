@@ -38,7 +38,7 @@ GEM
       ast (~> 2.4.1)
       racc
     prism (1.5.1)
-    public_suffix (7.0.5)
+    public_suffix (6.0.2)
     racc (1.8.1)
     rainbow (3.1.1)
     rake (13.3.0)
@@ -90,6 +90,7 @@ DEPENDENCIES
   minitest (~> 5.18)
   minitest-reporters (~> 1.6)
   mocha (~> 2.1)
+  public_suffix (< 7)
   rake (~> 13.0)
   rubocop (~> 1.60)
   rubocop-minitest (~> 0.14)
