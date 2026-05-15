@@ -1,9 +1,12 @@
 name: Publish Gem
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Version tag to publish'
+        required: true
+        default: 'v0.8.0'
 
 permissions:
   contents: write
@@ -14,6 +17,9 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.tag }}
+        fetch-depth: 0
     
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
