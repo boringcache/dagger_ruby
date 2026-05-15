@@ -4,49 +4,53 @@ require_relative "dagger_ruby/version"
 require_relative "dagger_ruby/client"
 require_relative "dagger_ruby/config"
 require_relative "dagger_ruby/errors"
+require "shellwords"
 
 module DaggerRuby
   class << self
     def connection(config = nil)
-      # If we're already in a dagger session, use it
-      if ENV["DAGGER_SESSION_PORT"] && ENV["DAGGER_SESSION_TOKEN"]
-        client = Client.new(config: config)
-        if block_given?
-          begin
-            yield client
-          ensure
-            client.close
-          end
-        else
-          client
-        end
-      else
-        # Otherwise, start a new dagger session
-        require "open3"
+      return connection_in_current_session(config) if dagger_session?
 
-        # Get the current script and its arguments
-        script = $PROGRAM_NAME
-        args = ARGV
+      exec(*dagger_run_command(config))
+    end
 
-        # Construct the command that dagger should run
-        ruby_cmd = ["ruby", script, *args].join(" ")
+    private
 
-        # Get verbosity options from config or environment
-        quiet = config&.quiet || ENV["DAGGER_QUIET"]&.to_i
-        silent = config&.silent || ENV["DAGGER_SILENT"] == "true"
-        progress = config&.progress || ENV.fetch("DAGGER_PROGRESS", nil)
+    def dagger_session?
+      ENV.fetch("DAGGER_SESSION_PORT", nil) && ENV.fetch("DAGGER_SESSION_TOKEN", nil)
+    end
 
-        # Build dagger command with options
-        cmd_parts = ["dagger"]
-        cmd_parts += ["-q"] * quiet if quiet&.positive?
-        cmd_parts += ["--silent"] if silent
-        cmd_parts += ["--progress", progress] if progress
-        cmd_parts += ["run", ruby_cmd]
-        cmd = cmd_parts.join(" ")
+    def connection_in_current_session(config)
+      client = Client.new(config: config)
+      return client unless block_given?
 
-        # Execute the command
-        exec(cmd)
+      begin
+        yield client
+      ensure
+        client.close
       end
+    end
+
+    def dagger_run_command(config)
+      ["dagger", *quiet_flags(config), *silent_flag(config), *progress_option(config), "run", ruby_command]
+    end
+
+    def ruby_command
+      Shellwords.join(["ruby", $PROGRAM_NAME, *ARGV])
+    end
+
+    def quiet_flags(config)
+      quiet = config&.quiet || ENV["DAGGER_QUIET"]&.to_i
+      quiet&.positive? ? ["-q"] * quiet : []
+    end
+
+    def silent_flag(config)
+      config&.silent || ENV["DAGGER_SILENT"] == "true" ? ["--silent"] : []
+    end
+
+    def progress_option(config)
+      progress = config&.progress || ENV.fetch("DAGGER_PROGRESS", nil)
+      progress ? ["--progress", progress] : []
     end
   end
 end
