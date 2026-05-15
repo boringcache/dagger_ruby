@@ -134,7 +134,10 @@ class GemValidator
     puts "\n🔄 Checking git status..."
 
     current_branch = `git rev-parse --abbrev-ref HEAD`.strip
-    @warnings << "Not on main branch (currently on: #{current_branch})" unless current_branch == "main"
+    current_tags = `git tag --points-at HEAD`.lines.map(&:strip)
+    unless current_branch == "main" || current_tags.include?("v#{@version}")
+      @warnings << "Not on main branch or v#{@version} tag (currently on: #{current_branch})"
+    end
 
     @errors << "Working directory has uncommitted changes" unless `git status --porcelain`.strip.empty?
 
