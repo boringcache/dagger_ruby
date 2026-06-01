@@ -4,7 +4,6 @@ require_relative "dagger_ruby/version"
 require_relative "dagger_ruby/client"
 require_relative "dagger_ruby/config"
 require_relative "dagger_ruby/errors"
-require "shellwords"
 
 module DaggerRuby
   class << self
@@ -32,11 +31,7 @@ module DaggerRuby
     end
 
     def dagger_run_command(config)
-      ["dagger", *quiet_flags(config), *silent_flag(config), *progress_option(config), "run", ruby_command]
-    end
-
-    def ruby_command
-      Shellwords.join(["ruby", $PROGRAM_NAME, *ARGV])
+      ["dagger", *quiet_flags(config), *silent_flag(config), *progress_option(config), "run", "--", "ruby", $PROGRAM_NAME, *ARGV]
     end
 
     def quiet_flags(config)
