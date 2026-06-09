@@ -5,8 +5,8 @@ GEM
     json (2.12.2)
     logger (1.7.0)
     mustermann (3.1.1)
-    nio4r (2.7.4)
-    puma (6.6.0)
+    nio4r (2.7.5)
+    puma (7.2.1)
       nio4r (~> 2.0)
     rack (3.2.6)
     rack-protection (4.2.1)
@@ -31,7 +31,7 @@ PLATFORMS
 
 DEPENDENCIES
   json (~> 2.6)
-  puma (~> 6.0)
+  puma (~> 7.2)
   sinatra (~> 4.2)
 
 BUNDLED WITH
