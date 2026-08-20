@@ -24,8 +24,8 @@ class TestService < Minitest::Test
     service = DaggerRuby::Service.from_id("service_123", @client)
 
     stub_request(:post, "http://127.0.0.1:8080/query")
-      .with(body: hash_including(query: /service.*endpoint/))
-      .to_return(status: 200, body: { data: { service: { endpoint: "http://localhost:8080" } } }.to_json)
+      .with(body: hash_including(query: /loadServiceFromID.*endpoint/))
+      .to_return(status: 200, body: { data: { loadServiceFromID: { endpoint: "http://localhost:8080" } } }.to_json)
 
     endpoint = service.endpoint
 
@@ -36,8 +36,8 @@ class TestService < Minitest::Test
     service = DaggerRuby::Service.from_id("service_123", @client)
 
     stub_request(:post, "http://127.0.0.1:8080/query")
-      .with(body: hash_including(query: /service.*endpoint.*port/))
-      .to_return(status: 200, body: { data: { service: { endpoint: "http://localhost:3000" } } }.to_json)
+      .with(body: hash_including(query: /loadServiceFromID.*endpoint.*port/))
+      .to_return(status: 200, body: { data: { loadServiceFromID: { endpoint: "http://localhost:3000" } } }.to_json)
 
     endpoint = service.endpoint(port: 3000)
 
@@ -48,8 +48,8 @@ class TestService < Minitest::Test
     service = DaggerRuby::Service.from_id("service_123", @client)
 
     stub_request(:post, "http://127.0.0.1:8080/query")
-      .with(body: hash_including(query: /service.*endpoint.*scheme/))
-      .to_return(status: 200, body: { data: { service: { endpoint: "https://localhost:8080" } } }.to_json)
+      .with(body: hash_including(query: /loadServiceFromID.*endpoint.*scheme/))
+      .to_return(status: 200, body: { data: { loadServiceFromID: { endpoint: "https://localhost:8080" } } }.to_json)
 
     endpoint = service.endpoint(scheme: "https")
 
@@ -60,8 +60,8 @@ class TestService < Minitest::Test
     service = DaggerRuby::Service.from_id("service_123", @client)
 
     stub_request(:post, "http://127.0.0.1:8080/query")
-      .with(body: hash_including(query: /service.*hostname/))
-      .to_return(status: 200, body: { data: { service: { hostname: "service-host" } } }.to_json)
+      .with(body: hash_including(query: /loadServiceFromID.*hostname/))
+      .to_return(status: 200, body: { data: { loadServiceFromID: { hostname: "service-host" } } }.to_json)
 
     hostname = service.hostname
 
@@ -72,20 +72,22 @@ class TestService < Minitest::Test
     service = DaggerRuby::Service.from_id("service_123", @client)
 
     stub_request(:post, "http://127.0.0.1:8080/query")
-      .with(body: hash_including(query: /service.*ports/))
-      .to_return(status: 200, body: { data: { service: { ports: [8080, 3000] } } }.to_json)
+      .with(body: hash_including(query: /loadServiceFromID.*ports/))
+      .to_return(status: 200, body: {
+        data: { loadServiceFromID: { ports: [{ port: 8080 }, { port: 3000 }] } },
+      }.to_json)
 
     ports = service.ports
 
-    assert_equal [8080, 3000], ports
+    assert_equal [{ "port" => 8080 }, { "port" => 3000 }], ports
   end
 
   def test_start
     service = DaggerRuby::Service.from_id("service_123", @client)
 
     stub_request(:post, "http://127.0.0.1:8080/query")
-      .with(body: hash_including(query: /service.*start/))
-      .to_return(status: 200, body: { data: { service: { start: "service_123" } } }.to_json)
+      .with(body: hash_including(query: /loadServiceFromID.*start/))
+      .to_return(status: 200, body: { data: { loadServiceFromID: { start: "service_123" } } }.to_json)
 
     result = service.start
 
@@ -96,8 +98,8 @@ class TestService < Minitest::Test
     service = DaggerRuby::Service.from_id("service_123", @client)
 
     stub_request(:post, "http://127.0.0.1:8080/query")
-      .with(body: hash_including(query: /service.*stop/))
-      .to_return(status: 200, body: { data: { service: { stop: "service_123" } } }.to_json)
+      .with(body: hash_including(query: /loadServiceFromID.*stop/))
+      .to_return(status: 200, body: { data: { loadServiceFromID: { stop: "service_123" } } }.to_json)
 
     result = service.stop
 
@@ -108,8 +110,8 @@ class TestService < Minitest::Test
     service = DaggerRuby::Service.from_id("service_123", @client)
 
     stub_request(:post, "http://127.0.0.1:8080/query")
-      .with(body: hash_including(query: /service.*stop.*kill/))
-      .to_return(status: 200, body: { data: { service: { stop: "service_123" } } }.to_json)
+      .with(body: hash_including(query: /loadServiceFromID.*stop.*kill/))
+      .to_return(status: 200, body: { data: { loadServiceFromID: { stop: "service_123" } } }.to_json)
 
     result = service.stop(kill: true)
 
@@ -120,36 +122,36 @@ class TestService < Minitest::Test
     service = DaggerRuby::Service.from_id("service_123", @client)
 
     stub_request(:post, "http://127.0.0.1:8080/query")
-      .with(body: hash_including(query: /service.*up/))
-      .to_return(status: 200, body: { data: { service: { up: "service_123" } } }.to_json)
+      .with(body: hash_including(query: /loadServiceFromID.*up/))
+      .to_return(status: 200, body: { data: { loadServiceFromID: { up: nil } } }.to_json)
 
     result = service.up
 
-    assert_equal "service_123", result
+    assert_nil result
   end
 
   def test_up_with_ports
     service = DaggerRuby::Service.from_id("service_123", @client)
 
     stub_request(:post, "http://127.0.0.1:8080/query")
-      .with(body: hash_including(query: /service.*up.*ports/))
-      .to_return(status: 200, body: { data: { service: { up: "service_123" } } }.to_json)
+      .with(body: hash_including(query: /up\(ports: \[\{frontend: 8080, backend: 3000, protocol: TCP\}\]\)/))
+      .to_return(status: 200, body: { data: { loadServiceFromID: { up: nil } } }.to_json)
 
-    result = service.up(ports: [8080, 3000])
+    result = service.up(ports: [{ frontend: 8080, backend: 3000, protocol: "TCP" }])
 
-    assert_equal "service_123", result
+    assert_nil result
   end
 
   def test_up_with_random
     service = DaggerRuby::Service.from_id("service_123", @client)
 
     stub_request(:post, "http://127.0.0.1:8080/query")
-      .with(body: hash_including(query: /service.*up.*random/))
-      .to_return(status: 200, body: { data: { service: { up: "service_123" } } }.to_json)
+      .with(body: hash_including(query: /loadServiceFromID.*up.*random/))
+      .to_return(status: 200, body: { data: { loadServiceFromID: { up: nil } } }.to_json)
 
     result = service.up(random: true)
 
-    assert_equal "service_123", result
+    assert_nil result
   end
 
   def test_with_hostname
@@ -163,8 +165,8 @@ class TestService < Minitest::Test
     service = DaggerRuby::Service.from_id("service_123", @client)
 
     stub_request(:post, "http://127.0.0.1:8080/query")
-      .with(body: hash_including(query: /service.*id/))
-      .to_return(status: 200, body: { data: { service: { id: "service_123" } } }.to_json)
+      .with(body: hash_including(query: /loadServiceFromID.*id/))
+      .to_return(status: 200, body: { data: { loadServiceFromID: { id: "service_123" } } }.to_json)
 
     result = service.sync
 

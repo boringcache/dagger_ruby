@@ -98,15 +98,14 @@ class TestFile < Minitest::Test
     assert_equal file_id, result.id
   end
 
-  def test_secret_integration
-    secret = DaggerRuby::Secret.new(DaggerRuby::QueryBuilder.new("secret"), @client)
+  def test_with_replaced_changes_matching_contents
     file_id = "file_123"
 
     mock_graphql_response(
-      data: { "file" => { "withSecret" => { "id" => file_id } } },
+      data: { "file" => { "withReplaced" => { "id" => file_id } } },
     )
 
-    result = @file.with_secret(secret)
+    result = @file.with_replaced("World", "Ruby", all: true)
 
     assert_instance_of DaggerRuby::File, result
     assert_equal file_id, result.id

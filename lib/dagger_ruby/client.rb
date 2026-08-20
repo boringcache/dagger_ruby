@@ -61,17 +61,24 @@ module DaggerRuby
       Directory.new(QueryBuilder.new("directory"), self)
     end
 
-    def file
-      File.new(QueryBuilder.new("file"), self)
+    def file(name, contents, permissions: nil)
+      args = { "name" => name, "contents" => contents }
+      args["permissions"] = permissions if permissions
+      File.new(QueryBuilder.new.chain_operation("file", args), self)
     end
 
-    def secret
-      Secret.new(QueryBuilder.new("secret"), self)
+    def secret(uri, cache_key: nil)
+      args = { "uri" => uri }
+      args["cacheKey"] = cache_key if cache_key
+      Secret.new(QueryBuilder.new.chain_operation("secret", args), self)
     end
 
-    def cache_volume(name)
-      query = QueryBuilder.new
-      query = query.chain_operation("cacheVolume", { "key" => name })
+    def cache_volume(name, opts = {})
+      args = { "key" => name }
+      args["source"] = graphql_id(opts[:source]) if opts[:source]
+      args["sharing"] = QueryBuilder.enum_value(opts[:sharing]) if opts[:sharing]
+      args["owner"] = opts[:owner] if opts[:owner]
+      query = QueryBuilder.new.chain_operation("cacheVolume", args)
       CacheVolume.new(query, self)
     end
 
@@ -81,21 +88,12 @@ module DaggerRuby
 
     def git(url, opts = {})
       args = { "url" => url }
-      args["keepGitDir"] = opts[:keep_git_dir] if opts.key?(:keep_git_dir)
       args["sshKnownHosts"] = opts[:ssh_known_hosts] if opts[:ssh_known_hosts]
-      if opts[:ssh_auth_socket]
-        args["sshAuthSocket"] =
-          opts[:ssh_auth_socket].is_a?(DaggerObject) ? opts[:ssh_auth_socket].id : opts[:ssh_auth_socket]
-      end
+      args["sshAuthSocket"] = graphql_id(opts[:ssh_auth_socket]) if opts[:ssh_auth_socket]
       args["httpAuthUsername"] = opts[:http_auth_username] if opts[:http_auth_username]
-      if opts[:http_auth_token]
-        args["httpAuthToken"] =
-          opts[:http_auth_token].is_a?(DaggerObject) ? opts[:http_auth_token].id : opts[:http_auth_token]
-      end
-      if opts[:http_auth_header]
-        args["httpAuthHeader"] =
-          opts[:http_auth_header].is_a?(DaggerObject) ? opts[:http_auth_header].id : opts[:http_auth_header]
-      end
+      args["httpAuthToken"] = graphql_id(opts[:http_auth_token]) if opts[:http_auth_token]
+      args["httpAuthHeader"] = graphql_id(opts[:http_auth_header]) if opts[:http_auth_header]
+      args["experimentalServiceHost"] = graphql_id(opts[:service_host]) if opts[:service_host]
 
       query = QueryBuilder.new
       query = query.chain_operation("git", args)
@@ -106,10 +104,9 @@ module DaggerRuby
       args = { "url" => url }
       args["name"] = opts[:name] if opts[:name]
       args["permissions"] = opts[:permissions] if opts[:permissions]
-      if opts[:auth_header]
-        args["authHeader"] =
-          opts[:auth_header].is_a?(DaggerObject) ? opts[:auth_header].id : opts[:auth_header]
-      end
+      args["checksum"] = opts[:checksum] if opts[:checksum]
+      args["authHeader"] = graphql_id(opts[:auth_header]) if opts[:auth_header]
+      args["experimentalServiceHost"] = graphql_id(opts[:service_host]) if opts[:service_host]
 
       query = QueryBuilder.new
       query = query.chain_operation("http", args)
@@ -142,6 +139,10 @@ module DaggerRuby
     alias execute execute_query
 
     private
+
+    def graphql_id(value)
+      value.is_a?(DaggerObject) ? value.id : value
+    end
 
     def handle_response(response)
       case response.code.to_i

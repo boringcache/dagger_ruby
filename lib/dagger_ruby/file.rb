@@ -4,12 +4,6 @@ require_relative "dagger_object"
 
 module DaggerRuby
   class File < DaggerObject
-    def self.from_id(id, client)
-      query = QueryBuilder.new("file")
-      query.load_from_id(id)
-      new(query, client)
-    end
-
     def self.root_field_name
       "file"
     end
@@ -18,20 +12,15 @@ module DaggerRuby
       chain_operation("withName", { "name" => name })
     end
 
-    def with_contents(contents)
-      chain_operation("withContents", { "contents" => contents })
-    end
-
     def with_timestamps(timestamp)
       chain_operation("withTimestamps", { "timestamp" => timestamp })
     end
 
-    def with_secret(secret)
-      chain_operation("withSecret", { "secret" => secret })
-    end
-
-    def contents
-      get_scalar("contents")
+    def contents(offset_lines: nil, limit_lines: nil)
+      args = {}
+      args["offsetLines"] = offset_lines if offset_lines
+      args["limitLines"] = limit_lines if limit_lines
+      get_scalar("contents", args)
     end
 
     def size
@@ -42,48 +31,27 @@ module DaggerRuby
       get_scalar("name")
     end
 
+    def chown(owner)
+      chain_operation("chown", { "owner" => owner })
+    end
+
+    def with_replaced(search, replacement, opts = {})
+      args = { "search" => search, "replacement" => replacement }
+      args["all"] = opts[:all] if opts.key?(:all)
+      args["firstFrom"] = opts[:first_from] if opts[:first_from]
+      chain_operation("withReplaced", args)
+    end
+
     def export(path, opts = {})
       args = { "path" => path }
       args["allowParentDirPath"] = opts[:allow_parent_dir_path] if opts.key?(:allow_parent_dir_path)
 
-      query = @query_builder.build_query_with_selection("export(#{format_arguments(args)})")
-      result = @client.execute(query)
-      extract_value_from_result(result, "export")
+      get_scalar("export", args)
     end
 
     def sync
       get_scalar("id")
       self
-    end
-
-    private
-
-    def format_arguments(args)
-      return "" if args.empty?
-
-      args.map { |key, value| "#{key}: #{format_value(value)}" }.join(", ")
-    end
-
-    def format_value(value)
-      case value
-      when String
-        "\"#{value}\""
-      when Integer, Float
-        value.to_s
-      when TrueClass, FalseClass
-        value.to_s
-      when NilClass
-        "null"
-      when Array
-        "[#{value.map { |v| format_value(v) }.join(", ")}]"
-      when Hash
-        formatted_pairs = value.map { |k, v| "#{k}: #{format_value(v)}" }
-        "{ #{formatted_pairs.join(", ")} }"
-      when DaggerObject
-        value.id
-      else
-        "\"#{value}\""
-      end
     end
   end
 end

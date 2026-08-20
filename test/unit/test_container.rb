@@ -153,7 +153,7 @@ class TestContainer < Minitest::Test
     secret.stubs(:id).returns("secret_123")
 
     mock_graphql_response(
-      data: { "container" => { "withSecretEnv" => { "id" => "secret_container_id" } } },
+      data: { "container" => { "withSecretVariable" => { "id" => "secret_container_id" } } },
     )
 
     new_container = @container.with_secret_env(name, secret)
@@ -162,7 +162,7 @@ class TestContainer < Minitest::Test
 
     query = new_container.instance_variable_get(:@query_builder)
 
-    assert_equal [{ field: "withSecretEnv", args: { "name" => name, "secret" => "secret_123" } }],
+    assert_equal [{ field: "withSecretVariable", args: { "name" => name, "secret" => "secret_123" } }],
                  query.operation_chain
   end
 
@@ -179,7 +179,7 @@ class TestContainer < Minitest::Test
 
     query = new_container.instance_variable_get(:@query_builder)
 
-    assert_equal [{ field: "withExposedPort", args: { "port" => port, "protocol" => protocol } }],
+    assert_equal [{ field: "withExposedPort", args: { "port" => port, "protocol" => :TCP } }],
                  query.operation_chain
   end
 
@@ -260,12 +260,12 @@ class TestContainer < Minitest::Test
   def test_export_to_file_saves_container
     path = "/tmp/container.tar"
     mock_graphql_response(
-      data: { "container" => { "exportToFile" => true } },
+      data: { "container" => { "export" => path } },
     )
 
     result = @container.export_to_file(path)
 
-    assert result
+    assert_equal path, result
   end
 
   def test_query_builder_integration

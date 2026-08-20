@@ -10,7 +10,7 @@ class TestConfig < Minitest::Test
     assert_nil config.workdir
     assert_equal 600, config.timeout
     assert_nil config.quiet
-    assert_equal false, config.silent
+    refute config.silent
     assert_nil config.progress
   end
 
@@ -46,7 +46,7 @@ class TestConfig < Minitest::Test
     assert_equal "/app", config.workdir
     assert_equal 120, config.timeout
     assert_equal 2, config.quiet
-    assert_equal true, config.silent
+    assert config.silent
     assert_equal "plain", config.progress
   end
 
@@ -59,7 +59,7 @@ class TestConfig < Minitest::Test
   def test_config_with_silent
     config = DaggerRuby::Config.new(silent: true)
 
-    assert_equal true, config.silent
+    assert config.silent
   end
 
   def test_config_with_progress
@@ -96,7 +96,7 @@ class TestConfig < Minitest::Test
 
     config = DaggerRuby::Config.new
 
-    assert_equal true, config.silent
+    assert config.silent
   ensure
     ENV["DAGGER_SILENT"] = original_env
   end

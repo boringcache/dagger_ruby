@@ -1,0 +1,39 @@
+name: Bug report
+description: Report reproducible incorrect behavior
+title: ""
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include credentials, private source code, or personal data.
+  - type: input
+    id: gem_version
+    attributes:
+      label: Dagger Ruby version
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Ruby and Dagger versions
+      placeholder: Ruby 4.0.6, Dagger 0.21.8
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true

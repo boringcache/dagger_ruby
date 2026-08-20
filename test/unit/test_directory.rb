@@ -76,4 +76,12 @@ class TestDirectory < Minitest::Test
     assert_instance_of DaggerRuby::Directory, result
     assert_equal file_id, result.id
   end
+
+  def test_docker_build_uses_current_single_socket_argument
+    result = @directory.docker_build(ssh: "socket_123")
+
+    assert_instance_of DaggerRuby::Container, result
+    assert_equal 'query { directory { dockerBuild(ssh: "socket_123") { id } } }',
+                 result.query_builder.build_query_with_selection("id")
+  end
 end

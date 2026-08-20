@@ -5,24 +5,25 @@ require_relative "lib/dagger_ruby/version"
 Gem::Specification.new do |spec|
   spec.name = "dagger_ruby"
   spec.version = DaggerRuby::VERSION
-  spec.authors = ["Gaurav Tiwari", "Claude Sonnet 4 + GPT-4"]
-  spec.email = ["gaurav@gauravtiwari.co.uk"]
+  spec.authors = ["BoringCache"]
+  spec.email = ["oss@boringcache.com"]
 
-  spec.summary = "A Ruby SDK for Dagger - build powerful CI/CD pipelines using Ruby"
-  # rubocop:disable Layout/LineLength
-  spec.description = "DaggerRuby provides a fluent, idiomatic Ruby interface to Dagger's container-based CI/CD engine. " \
-                     "Define build pipelines programmatically with Ruby instead of YAML. " \
-                     "Features lazy execution, caching, secrets, and service orchestration."
-  # rubocop:enable Layout/LineLength
+  spec.summary = "A Ruby client for Dagger's GraphQL API"
+  spec.description = "DaggerRuby provides a small, chainable Ruby interface for running container builds, " \
+                     "services, caches, secrets, and filesystem operations with the Dagger engine."
   spec.homepage = "https://github.com/boringcache/dagger_ruby"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.1.0"
+  spec.required_ruby_version = ">= 4.0.0"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/boringcache/dagger_ruby"
-  spec.metadata["changelog_uri"] = "https://github.com/boringcache/dagger_ruby/blob/main/CHANGELOG.md"
+  spec.metadata["source_code_uri"] = "#{spec.homepage}/tree/v#{spec.version}"
+  spec.metadata["changelog_uri"] = "#{spec.homepage}/blob/main/CHANGELOG.md"
+  spec.metadata["bug_tracker_uri"] = "#{spec.homepage}/issues"
+  spec.metadata["documentation_uri"] = "#{spec.homepage}#readme"
+  spec.metadata["security_policy_uri"] = "#{spec.homepage}/security/policy"
+  spec.metadata["rubygems_mfa_required"] = "true"
 
   # Specify which files should be added to the gem when it is released.
   spec.files = Dir.glob(%w[
@@ -31,18 +32,14 @@ Gem::Specification.new do |spec|
                           LICENSE*
                           CHANGELOG*
                           README*
-                          .yardopts
+                          SECURITY*
                         ]).reject { |f| File.directory?(f) }
 
-  spec.bindir = "exe"
-  spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  # Core dependencies - using only Ruby stdlib
-  spec.add_dependency "base64", "~> 0.1"
-  spec.add_dependency "json", "~> 2.6"
-  spec.add_dependency "logger", "~> 1.4"
+  spec.add_dependency "base64", "~> 0.3"
+  spec.add_dependency "json", "~> 2.21"
+  spec.add_dependency "logger", "~> 1.7"
 
   # Development dependencies are managed in Gemfile
-  spec.metadata["rubygems_mfa_required"] = "true"
 end

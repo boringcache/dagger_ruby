@@ -6,7 +6,7 @@ DaggerRuby.connection do |client|
   result = client.container
                  .from("python:alpine")
                  .with_exec(%w[pip install cowsay])
-                 .with_exec(["cowsay", message])
+                 .with_exec(["cowsay", "-t", message])
                  .stdout
 
   puts result

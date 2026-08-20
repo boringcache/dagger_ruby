@@ -23,8 +23,15 @@ module DaggerRuby
 
     protected
 
-    def get_scalar(field)
-      query = @query_builder.build_query_with_selection(field)
+    def get_scalar(field, args = {})
+      query = @query_builder.build_query_with_selection(field, args)
+      result = @client.execute_query(query)
+      extract_value_from_result(result, field)
+    end
+
+    def get_selection(field, selection, args = {})
+      selected_field = "#{QueryBuilder.new.field_selection(field, args)} { #{selection} }"
+      query = @query_builder.build_query_with_selection(selected_field)
       result = @client.execute_query(query)
       extract_value_from_result(result, field)
     end
@@ -52,41 +59,24 @@ module DaggerRuby
       klass.new(new_query, @client)
     end
 
-    def get_object_array(field, klass, _args = {})
-      query = @query_builder.build_query_with_selection(field)
-
-      array_field = query.selections.find { |s| s.field == field }
-      array_field&.select("id")
-
-      result = @client.execute(query)
-      ids = extract_array_from_result(result, field)
-
-      ids.map { |id_data| klass.from_id(id_data["id"], @client) }
-    end
-
-    private
-
-    def extract_array_from_result(result, field)
-      current = result["data"]
-
-      if @query_builder.root_field
-        current = current[@query_builder.root_field]
-        @query_builder.operation_chain.each do |operation|
-          current = current[operation[:field]] if current
-        end
-      end
-      current&.[](field) || []
+    def get_object_array(field, klass, args = {})
+      get_selection(field, "id", args).to_a.map { |data| klass.from_id(data.fetch("id"), @client) }
     end
 
     class << self
       def from_id(id, client)
-        query = QueryBuilder.new(root_field_name)
-        query.load_from_id(id)
+        query = QueryBuilder.new.chain_operation("load#{graphql_type_name}FromID", { "id" => id })
         new(query, client)
       end
 
       def root_field_name
         name.split("::").last.downcase
+      end
+
+      private
+
+      def graphql_type_name
+        name.split("::").last
       end
     end
   end

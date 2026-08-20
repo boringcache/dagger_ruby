@@ -5,12 +5,6 @@ require_relative "dagger_object"
 
 module DaggerRuby
   class Host < DaggerObject
-    def self.from_id(id, client)
-      query = QueryBuilder.new("host")
-      query.load_from_id(id)
-      new(query, client)
-    end
-
     def self.root_field_name
       "host"
     end
@@ -19,20 +13,20 @@ module DaggerRuby
       args = { "path" => path }
       args["exclude"] = opts[:exclude] if opts[:exclude]
       args["include"] = opts[:include] if opts[:include]
+      args["noCache"] = opts[:no_cache] if opts.key?(:no_cache)
+      args["gitignore"] = opts[:gitignore] if opts[:gitignore]
 
       get_object("directory", Directory, args)
     end
 
-    def file(path)
-      get_object("file", File, { "path" => path })
+    def file(path, no_cache: nil)
+      args = { "path" => path }
+      args["noCache"] = no_cache unless no_cache.nil?
+      get_object("file", File, args)
     end
 
     def unix_socket(path)
       get_object("unixSocket", Socket, { "path" => path })
-    end
-
-    def workdir
-      get_scalar("workdir")
     end
 
     def sync
@@ -42,12 +36,6 @@ module DaggerRuby
   end
 
   class Socket < DaggerObject
-    def self.from_id(id, client)
-      query = QueryBuilder.new("socket")
-      query.load_from_id(id)
-      new(query, client)
-    end
-
     def self.root_field_name
       "socket"
     end

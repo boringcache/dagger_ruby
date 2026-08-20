@@ -9,4 +9,11 @@ require "rubocop/rake_task"
 
 RuboCop::RakeTask.new
 
-task default: %i[test rubocop]
+desc "Compile every Ruby source file"
+task :syntax do
+  FileList["{lib,test,examples}/**/*.rb"].each do |path|
+    RubyVM::InstructionSequence.compile_file(path)
+  end
+end
+
+task default: %i[syntax test rubocop]

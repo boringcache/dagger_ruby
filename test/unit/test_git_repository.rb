@@ -78,26 +78,13 @@ class TestGitRepository < Minitest::Test
     assert_equal ["v1.0.0", "v2.0.0"], tags
   end
 
-  def test_with_auth_token_returns_git_repository
-    git = @client.git("https://github.com/test/repo.git")
-    result = git.with_auth_token("token123")
-
-    assert_instance_of DaggerRuby::GitRepository, result
-  end
-
-  def test_with_auth_token_with_secret_object
-    git = @client.git("https://github.com/test/repo.git")
+  def test_git_accepts_auth_secrets_at_creation
     secret = @client.set_secret("token", "secret_value")
-    result = git.with_auth_token(secret)
+    secret.stubs(:id).returns("secret_123")
+    git = @client.git("https://github.com/test/repo.git", http_auth_username: "git", http_auth_token: secret)
 
-    assert_instance_of DaggerRuby::GitRepository, result
-  end
-
-  def test_with_auth_header_returns_git_repository
-    git = @client.git("https://github.com/test/repo.git")
-    result = git.with_auth_header("Bearer token123")
-
-    assert_instance_of DaggerRuby::GitRepository, result
+    assert_instance_of DaggerRuby::GitRepository, git
+    assert_equal "secret_123", git.query_builder.operation_chain.first[:args]["httpAuthToken"]
   end
 
   def test_sync_returns_self

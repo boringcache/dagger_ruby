@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
-IFS=$'\n\t'
-set -vx
 
-bundle install
+cd "$(dirname "$0")/.."
 
-# Do any other automated setup that you need to do here
+bundle check >/dev/null 2>&1 || bundle install
+
+echo "Dagger Ruby is ready. Run bin/ci to verify the checkout."

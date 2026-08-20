@@ -9,7 +9,9 @@ class TestEntrypoint < Minitest::Test
     DaggerRuby::Client.expects(:new).with(config: nil).returns(fake_client)
 
     with_dagger_session do
-      assert_equal "artifact.tar.zst", DaggerRuby.connection { |client| "artifact.tar.zst" if client == fake_client }
+      result = DaggerRuby.connection { |client| "artifact.tar.zst" if client == fake_client }
+
+      assert_equal "artifact.tar.zst", result
     end
   end
 

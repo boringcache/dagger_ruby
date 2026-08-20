@@ -54,16 +54,20 @@ class TestClient < Minitest::Test
 
   def test_file_returns_file_object
     client = DaggerRuby::Client.new
-    file = client.file
+    file = client.file("hello.txt", "Hello")
 
     assert_instance_of DaggerRuby::File, file
+    assert_equal "file", file.query_builder.operation_chain.first[:field]
+    assert_equal({ "name" => "hello.txt", "contents" => "Hello" }, file.query_builder.operation_chain.first[:args])
   end
 
   def test_secret_returns_secret_object
     client = DaggerRuby::Client.new
-    secret = client.secret
+    secret = client.secret("env://API_TOKEN", cache_key: "api-token")
 
     assert_instance_of DaggerRuby::Secret, secret
+    assert_equal({ "uri" => "env://API_TOKEN", "cacheKey" => "api-token" },
+                 secret.query_builder.operation_chain.first[:args])
   end
 
   def test_cache_volume_returns_cache_volume_object
@@ -90,7 +94,6 @@ class TestClient < Minitest::Test
   def test_git_with_options
     client = DaggerRuby::Client.new
     git = client.git("https://github.com/test/repo.git", {
-                       keep_git_dir: true,
                        ssh_known_hosts: "github.com ssh-rsa ABC123",
                        http_auth_username: "user",
                      })

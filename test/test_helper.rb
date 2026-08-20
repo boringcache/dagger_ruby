@@ -1,7 +1,12 @@
 # frozen_string_literal: true
 
 require "simplecov"
-SimpleCov.start
+SimpleCov.start do
+  cover "lib/**/*.rb"
+  minimum_coverage line: 75
+  skip "/test/"
+  skip "/vendor/"
+end
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "dagger_ruby"

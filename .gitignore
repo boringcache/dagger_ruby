@@ -7,5 +7,7 @@
 /spec/reports/
 /tmp/
 vendor/bundle/
+vendor/
 coverage
 *.gem
+.DS_Store

@@ -7,6 +7,10 @@ module DaggerRuby
   class QueryBuilder
     attr_reader :root_field, :operation_chain, :variables
 
+    def self.enum_value(value)
+      value.is_a?(Hash) ? value : value.to_sym
+    end
+
     def initialize(root_field = nil)
       @root_field = root_field
       @operation_chain = []
@@ -20,10 +24,6 @@ module DaggerRuby
       new_query
     end
 
-    def load_from_id(id)
-      chain_operation("loadFromId", { "id" => id })
-    end
-
     def variable(name, type)
       new_query = QueryBuilder.new(@root_field)
       new_query.instance_variable_set(:@operation_chain, @operation_chain.dup)
@@ -31,7 +31,8 @@ module DaggerRuby
       new_query
     end
 
-    def build_query_with_selection(field)
+    def build_query_with_selection(field, args = {})
+      selection = field_selection(field, args)
       query_parts = []
 
       if @variables.any?
@@ -43,19 +44,23 @@ module DaggerRuby
 
       if @root_field
         if @operation_chain.empty?
-          query_parts << "{ #{@root_field} { #{field} } }"
+          query_parts << "{ #{@root_field} { #{selection} } }"
         else
-          operations_str = build_operations_chain_with_selection(field)
+          operations_str = build_operations_chain_with_selection(selection)
           query_parts << "{ #{@root_field} { #{operations_str} } }"
         end
       elsif @operation_chain.any?
-        operations_str = build_operations_chain_with_selection(field)
+        operations_str = build_operations_chain_with_selection(selection)
         query_parts << "{ #{operations_str} }"
       else
-        query_parts << "{ #{field} }"
+        query_parts << "{ #{selection} }"
       end
 
       query_parts.join(" ")
+    end
+
+    def field_selection(field, args = {})
+      "#{field}#{format_arguments(args)}"
     end
 
     private

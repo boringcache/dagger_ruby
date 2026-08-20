@@ -54,9 +54,6 @@ class TestRubyBuildQueryValidation < Minitest::Test
     expected_cache_query = 'query { cacheVolume(key: "apt-builder-test") { id } }'
 
     assert_equal expected_cache_query, cache_query
-
-    puts "✅ Complex Ruby build query structure validated successfully!"
-    puts "Number of operations: #{operations.length}"
   end
 
   def test_cache_volume_key_generation
@@ -68,7 +65,5 @@ class TestRubyBuildQueryValidation < Minitest::Test
     # Verify each cache volume has the correct key in its query
     assert_match(/apt-builder-abc123/, cache1.query_builder.build_query_with_selection("id"))
     assert_match(/bundler-def456/, cache2.query_builder.build_query_with_selection("id"))
-
-    puts "✅ Cache volume key generation validated successfully!"
   end
 end

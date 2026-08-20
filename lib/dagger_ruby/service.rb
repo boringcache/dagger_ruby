@@ -4,12 +4,6 @@ require_relative "dagger_object"
 
 module DaggerRuby
   class Service < DaggerObject
-    def self.from_id(id, client)
-      query = QueryBuilder.new("service")
-      query.load_from_id(id)
-      new(query, client)
-    end
-
     def self.root_field_name
       "service"
     end
@@ -19,13 +13,7 @@ module DaggerRuby
       args["port"] = opts[:port] if opts[:port]
       args["scheme"] = opts[:scheme] if opts[:scheme]
 
-      if args.empty?
-        get_scalar("endpoint")
-      else
-        query = @query_builder.build_query_with_selection("endpoint(#{format_arguments(args)})")
-        result = @client.execute(query)
-        extract_value_from_result(result, "endpoint")
-      end
+      get_scalar("endpoint", args)
     end
 
     def hostname
@@ -33,42 +21,26 @@ module DaggerRuby
     end
 
     def ports
-      get_scalar("ports")
+      get_selection("ports", "port protocol description experimentalSkipHealthcheck")
     end
 
     def start
-      query = @query_builder.build_query_with_selection("start")
-      result = @client.execute(query)
-      extract_value_from_result(result, "start")
+      get_scalar("start")
     end
 
     def stop(opts = {})
       args = {}
       args["kill"] = opts[:kill] if opts.key?(:kill)
 
-      query = if args.empty?
-                @query_builder.build_query_with_selection("stop")
-              else
-                @query_builder.build_query_with_selection("stop(#{format_arguments(args)})")
-              end
-
-      result = @client.execute(query)
-      extract_value_from_result(result, "stop")
+      get_scalar("stop", args)
     end
 
     def up(opts = {})
       args = {}
-      args["ports"] = opts[:ports] if opts[:ports]
+      args["ports"] = opts[:ports].map { |port| normalize_port_forward(port) } if opts[:ports]
       args["random"] = opts[:random] if opts.key?(:random)
 
-      query = if args.empty?
-                @query_builder.build_query_with_selection("up")
-              else
-                @query_builder.build_query_with_selection("up(#{format_arguments(args)})")
-              end
-
-      result = @client.execute(query)
-      extract_value_from_result(result, "up")
+      get_scalar("up", args)
     end
 
     def with_hostname(hostname)
@@ -82,31 +54,10 @@ module DaggerRuby
 
     private
 
-    def format_arguments(args)
-      return "" if args.empty?
-
-      args.map { |key, value| "#{key}: #{format_value(value)}" }.join(", ")
-    end
-
-    def format_value(value)
-      case value
-      when String
-        "\"#{value}\""
-      when Integer, Float
-        value.to_s
-      when TrueClass, FalseClass
-        value.to_s
-      when NilClass
-        "null"
-      when Array
-        "[#{value.map { |v| format_value(v) }.join(", ")}]"
-      when Hash
-        formatted_pairs = value.map { |k, v| "#{k}: #{format_value(v)}" }
-        "{ #{formatted_pairs.join(", ")} }"
-      when DaggerObject
-        value.id
-      else
-        "\"#{value}\""
+    def normalize_port_forward(port)
+      port.to_h do |key, value|
+        normalized = key.to_s == "protocol" ? QueryBuilder.enum_value(value) : value
+        [key, normalized]
       end
     end
   end

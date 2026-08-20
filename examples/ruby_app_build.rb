@@ -7,7 +7,7 @@ DaggerRuby.connection do |client|
   puts "Building Ruby Sinatra application..."
 
   container = client.container
-                    .from("ruby:3.4.4")
+                    .from("ruby:4.0.6")
                     .with_mounted_cache("/usr/local/bundle", cache)
                     .with_directory("/app", app_dir)
                     .with_workdir("/app")

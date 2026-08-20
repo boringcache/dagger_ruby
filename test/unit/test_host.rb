@@ -71,16 +71,11 @@ class TestHost < Minitest::Test
     assert_instance_of DaggerRuby::Socket, socket
   end
 
-  def test_workdir_returns_string
+  def test_file_can_disable_host_cache
     host = @client.host
+    file = host.file("/tmp/test.txt", no_cache: true)
 
-    stub_request(:post, "http://127.0.0.1:8080/query")
-      .with(body: hash_including(query: /host.*workdir/))
-      .to_return(status: 200, body: { data: { host: { workdir: "/current/dir" } } }.to_json)
-
-    workdir = host.workdir
-
-    assert_equal "/current/dir", workdir
+    assert_equal({ "path" => "/tmp/test.txt", "noCache" => true }, file.query_builder.operation_chain.last[:args])
   end
 
   def test_sync_returns_self
@@ -109,8 +104,8 @@ class TestHost < Minitest::Test
     socket = DaggerRuby::Socket.from_id("socket_123", @client)
 
     stub_request(:post, "http://127.0.0.1:8080/query")
-      .with(body: hash_including(query: /socket.*id/))
-      .to_return(status: 200, body: { data: { socket: { id: "socket_123" } } }.to_json)
+      .with(body: hash_including(query: /loadSocketFromID.*id/))
+      .to_return(status: 200, body: { data: { loadSocketFromID: { id: "socket_123" } } }.to_json)
 
     result = socket.sync
 

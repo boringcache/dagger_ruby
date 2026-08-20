@@ -7,8 +7,8 @@ require_relative "dagger_ruby/errors"
 
 module DaggerRuby
   class << self
-    def connection(config = nil, &block)
-      return connection_in_current_session(config, &block) if dagger_session?
+    def connection(config = nil, &)
+      return connection_in_current_session(config, &) if dagger_session?
 
       exec(*dagger_run_command(config))
     end
@@ -31,7 +31,17 @@ module DaggerRuby
     end
 
     def dagger_run_command(config)
-      ["dagger", *quiet_flags(config), *silent_flag(config), *progress_option(config), "run", "--", "ruby", $PROGRAM_NAME, *ARGV]
+      [
+        "dagger",
+        *quiet_flags(config),
+        *silent_flag(config),
+        *progress_option(config),
+        "run",
+        "--",
+        "ruby",
+        $PROGRAM_NAME,
+        *ARGV,
+      ]
     end
 
     def quiet_flags(config)

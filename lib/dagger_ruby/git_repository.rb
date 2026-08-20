@@ -4,12 +4,6 @@ require_relative "dagger_object"
 
 module DaggerRuby
   class GitRepository < DaggerObject
-    def self.from_id(id, client)
-      query = QueryBuilder.new("gitRepository")
-      query.load_from_id(id)
-      new(query, client)
-    end
-
     def self.root_field_name
       "gitRepository"
     end
@@ -30,20 +24,16 @@ module DaggerRuby
       get_object("head", GitRef)
     end
 
-    def branches
-      get_scalar("branches")
+    def branches(patterns: nil)
+      args = {}
+      args["patterns"] = patterns if patterns
+      get_scalar("branches", args)
     end
 
-    def tags
-      get_scalar("tags")
-    end
-
-    def with_auth_token(token)
-      chain_operation("withAuthToken", { "token" => token.is_a?(DaggerObject) ? token.id : token })
-    end
-
-    def with_auth_header(header)
-      chain_operation("withAuthHeader", { "header" => header.is_a?(DaggerObject) ? header.id : header })
+    def tags(patterns: nil)
+      args = {}
+      args["patterns"] = patterns if patterns
+      get_scalar("tags", args)
     end
 
     def sync
@@ -53,12 +43,6 @@ module DaggerRuby
   end
 
   class GitRef < DaggerObject
-    def self.from_id(id, client)
-      query = QueryBuilder.new("gitRef")
-      query.load_from_id(id)
-      new(query, client)
-    end
-
     def self.root_field_name
       "gitRef"
     end
@@ -73,11 +57,14 @@ module DaggerRuby
 
     def tree(opts = {})
       args = {}
-      args["path"] = opts[:path] if opts[:path]
-      args["exclude"] = opts[:exclude] if opts[:exclude]
-      args["include"] = opts[:include] if opts[:include]
+      args["discardGitDir"] = opts[:discard_git_dir] if opts.key?(:discard_git_dir)
+      args["depth"] = opts[:depth] if opts[:depth]
+      args["includeTags"] = opts[:include_tags] if opts.key?(:include_tags)
 
-      get_object("tree", Directory, args)
+      directory = get_object("tree", Directory, args)
+      directory = directory.directory(opts[:path]) if opts[:path]
+      directory = directory.filter(exclude: opts[:exclude], include: opts[:include]) if opts[:exclude] || opts[:include]
+      directory
     end
 
     def sync

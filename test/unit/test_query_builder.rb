@@ -67,6 +67,15 @@ class TestQueryBuilder < Minitest::Test
     assert_match(/\((key1: "value1", key2: "value2"|key2: "value2", key1: "value1")\)/, result)
   end
 
+  def test_enum_value_is_not_quoted
+    result = @builder.send(
+      :format_arguments,
+      { "protocol" => DaggerRuby::QueryBuilder.enum_value("TCP") },
+    )
+
+    assert_equal "(protocol: TCP)", result
+  end
+
   def test_escape_string_with_quotes
     result = @builder.send(:escape_string, 'test "quoted" string')
 
@@ -92,11 +101,10 @@ class TestQueryBuilder < Minitest::Test
     assert_equal "(text: \"test \\\"quoted\\\" \\\\backslash\\nstring\")", result
   end
 
-  def test_load_from_id
-    result = @builder.load_from_id("test_id")
-    query = result.build_query_with_selection("id")
+  def test_selection_with_arguments
+    query = @builder.build_query_with_selection("envVariable", { "name" => "A \"quoted\" name" })
 
-    assert_equal "query { container { loadFromId(id: \"test_id\") { id } } }", query.gsub(/\s+/, " ").strip
+    assert_equal 'query { container { envVariable(name: "A \\"quoted\\" name") } }', query.gsub(/\s+/, " ").strip
   end
 
   def test_complex_chained_query
