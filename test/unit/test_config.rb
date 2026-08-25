@@ -12,6 +12,11 @@ class TestConfig < Minitest::Test
     assert_nil config.quiet
     refute config.silent
     assert_nil config.progress
+    assert_equal :auto, config.runtime
+    assert_nil config.runner_host
+    assert_equal "0.21.8", config.dagger_version
+    assert config.verify_version
+    assert_empty config.environment
   end
 
   def test_config_with_log_output
@@ -77,6 +82,33 @@ class TestConfig < Minitest::Test
     assert_equal "dots", config.progress
   ensure
     ENV["DAGGER_PROGRESS"] = original_env
+  end
+
+  def test_config_selects_docker_runner
+    config = DaggerRuby::Config.new(runtime: "docker")
+
+    assert_equal :docker, config.runtime
+    assert_equal "image+docker://registry.dagger.io/engine:v0.21.8",
+                 config.environment.fetch("_EXPERIMENTAL_DAGGER_RUNNER_HOST")
+  end
+
+  def test_config_accepts_custom_runner
+    config = DaggerRuby::Config.new(runner_host: "tcp://runner.example:1234")
+
+    assert_equal "tcp://runner.example:1234",
+                 config.environment.fetch("_EXPERIMENTAL_DAGGER_RUNNER_HOST")
+  end
+
+  def test_config_rejects_unknown_runtime
+    error = assert_raises(ArgumentError) { DaggerRuby::Config.new(runtime: :buildkit) }
+
+    assert_includes error.message, "Use auto, apple, or docker"
+  end
+
+  def test_config_rejects_runtime_with_custom_runner
+    assert_raises(ArgumentError) do
+      DaggerRuby::Config.new(runtime: :apple, runner_host: "tcp://runner.example:1234")
+    end
   end
 
   def test_config_quiet_from_env

@@ -12,7 +12,7 @@ covers a practical subset of the API instead of Dagger module code generation.
 
 ## Requirements
 
-- Ruby 4.0 or newer
+- Ruby 3.2 or newer
 - Dagger 0.21.8
 - Docker, Colima, or another container runtime supported by Dagger
 
@@ -133,6 +133,7 @@ config = DaggerRuby::Config.new(
   timeout: 300,
   progress: "plain",
   log_output: $stderr,
+  runtime: :apple,
 )
 
 DaggerRuby.connection(config) do |client|
@@ -142,6 +143,13 @@ end
 
 `DAGGER_QUIET`, `DAGGER_SILENT`, and `DAGGER_PROGRESS` can provide the same CLI
 preferences through the environment.
+
+The client verifies the installed Dagger CLI before it starts a runner and then
+verifies the connected engine version. This matters for runtime drivers because
+the compatible CLI provisions the runner; merely pointing an older CLI at a
+newer engine image is not sufficient. Use `runtime: :apple` or `runtime: :docker`
+when more than one runtime is installed and automatic detection would be
+ambiguous. A custom runner can be selected with `runner_host:`.
 
 ## Errors
 
@@ -158,7 +166,7 @@ end
 
 ## Compatibility
 
-The current branch is tested against Ruby 4.0 and Dagger 0.21.8. Dagger's
+The current branch is tested against maintained Ruby releases and Dagger 0.21.8. Dagger's
 GraphQL schema can change between releases, so each supported engine update is
 validated by the live integration suite before release. Earlier Ruby and Dagger
 versions are not covered by the current compatibility contract.

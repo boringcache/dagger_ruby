@@ -98,6 +98,26 @@ module DaggerRuby
       chain_operation("withEntrypoint", entrypoint_args)
     end
 
+    def with_default_args(args)
+      chain_operation("withDefaultArgs", { "args" => args })
+    end
+
+    def with_docker_healthcheck(args, opts = {})
+      healthcheck_args = { "args" => args }
+      healthcheck_args["shell"] = opts[:shell] if opts.key?(:shell)
+      healthcheck_args["interval"] = opts[:interval] if opts[:interval]
+      healthcheck_args["timeout"] = opts[:timeout] if opts[:timeout]
+      healthcheck_args["startPeriod"] = opts[:start_period] if opts[:start_period]
+      healthcheck_args["startInterval"] = opts[:start_interval] if opts[:start_interval]
+      healthcheck_args["retries"] = opts[:retries] if opts[:retries]
+
+      chain_operation("withDockerHealthcheck", healthcheck_args)
+    end
+
+    def without_docker_healthcheck
+      chain_operation("withoutDockerHealthcheck")
+    end
+
     def with_user(name)
       chain_operation("withUser", { "name" => name })
     end
@@ -259,6 +279,17 @@ module DaggerRuby
       get_scalar("entrypoint")
     end
 
+    def default_args
+      get_scalar("defaultArgs")
+    end
+
+    def docker_healthcheck
+      get_selection(
+        "dockerHealthcheck",
+        "args shell interval timeout startPeriod startInterval retries",
+      )
+    end
+
     def env_variables
       get_selection("envVariables", "name value")
     end
@@ -303,6 +334,16 @@ module DaggerRuby
 
     def export_to_file(path, opts = {})
       export(path, opts)
+    end
+
+    def export_image(name, opts = {})
+      args = { "name" => name }
+      args["platformVariants"] = graphql_ids(opts[:platform_variants]) if opts[:platform_variants]
+      args["forcedCompression"] = QueryBuilder.enum_value(opts[:forced_compression]) if opts[:forced_compression]
+      args["mediaTypes"] = QueryBuilder.enum_value(opts[:media_types]) if opts[:media_types]
+
+      get_scalar("exportImage", args)
+      name
     end
 
     def publish(address, opts = {})

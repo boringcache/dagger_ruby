@@ -6,4 +6,5 @@ module DaggerRuby
   class HTTPError < DaggerError; end
   class InvalidQueryError < DaggerError; end
   class ConnectionError < DaggerError; end
+  class VersionMismatchError < ConnectionError; end
 end

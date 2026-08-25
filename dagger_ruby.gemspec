@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
                      "services, caches, secrets, and filesystem operations with the Dagger engine."
   spec.homepage = "https://github.com/boringcache/dagger_ruby"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 4.0.0"
+  spec.required_ruby_version = ">= 3.2.0"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 

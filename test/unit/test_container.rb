@@ -79,6 +79,39 @@ class TestContainer < Minitest::Test
     assert_equal [{ field: "withExec", args: expected_args }], query.operation_chain
   end
 
+  def test_with_default_args_sets_image_command
+    command = %w[bundle exec rails server]
+
+    container = @container.with_default_args(command)
+
+    assert_equal [{ field: "withDefaultArgs", args: { "args" => command } }],
+                 container.query_builder.operation_chain
+  end
+
+  def test_with_docker_healthcheck_sets_image_healthcheck
+    container = @container.with_docker_healthcheck(
+      ["curl", "--fail", "http://localhost:3000/up"],
+      interval: "30s",
+      timeout: "3s",
+      start_period: "10s",
+      retries: 3,
+    )
+
+    assert_equal(
+      [{
+        field: "withDockerHealthcheck",
+        args: {
+          "args" => ["curl", "--fail", "http://localhost:3000/up"],
+          "interval" => "30s",
+          "timeout" => "3s",
+          "startPeriod" => "10s",
+          "retries" => 3,
+        },
+      }],
+      container.query_builder.operation_chain,
+    )
+  end
+
   def test_with_directory_mounts_directory
     path = "/app"
     directory = DaggerRuby::Directory.new(DaggerRuby::QueryBuilder.new("directory"), @client)
@@ -266,6 +299,17 @@ class TestContainer < Minitest::Test
     result = @container.export_to_file(path)
 
     assert_equal path, result
+  end
+
+  def test_export_image_returns_the_loaded_name
+    name = "my-app:latest"
+    mock_graphql_response(
+      data: { "container" => { "exportImage" => {} } },
+    )
+
+    result = @container.export_image(name, media_types: :OCIMediaTypes)
+
+    assert_equal name, result
   end
 
   def test_query_builder_integration

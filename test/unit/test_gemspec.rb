@@ -16,8 +16,9 @@ class TestGemspec < Minitest::Test
   end
 
   def test_ruby_compatibility_contract
+    assert @spec.required_ruby_version.satisfied_by?(Gem::Version.new("3.2.0"))
     assert @spec.required_ruby_version.satisfied_by?(Gem::Version.new("4.0.0"))
-    refute @spec.required_ruby_version.satisfied_by?(Gem::Version.new("3.4.0"))
+    refute @spec.required_ruby_version.satisfied_by?(Gem::Version.new("3.1.9"))
   end
 
   def test_package_contains_only_runtime_and_public_documentation_files
