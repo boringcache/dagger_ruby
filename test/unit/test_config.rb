@@ -68,9 +68,34 @@ class TestConfig < Minitest::Test
   end
 
   def test_config_with_progress
-    config = DaggerRuby::Config.new(progress: "plain")
+    config = DaggerRuby::Config.new(progress: :pretty)
 
-    assert_equal "plain", config.progress
+    assert_equal "pretty", config.progress
+    assert_equal "logs", config.dagger_progress
+    assert_predicate config, :pretty_progress?
+    assert_predicate config, :streaming_logs?
+  end
+
+  def test_pretty_progress_builds_a_streaming_reporter
+    reporter = DaggerRuby::Config.new(progress: :pretty).progress_reporter(out: StringIO.new)
+
+    assert_predicate reporter, :streaming?
+  end
+
+  def test_plain_progress_leaves_presentation_to_dagger
+    output = StringIO.new
+    reporter = DaggerRuby::Config.new(progress: :plain).progress_reporter(out: output)
+
+    result = reporter.step("Build") { :finished }
+
+    assert_equal :finished, result
+    assert_empty output.string
+  end
+
+  def test_config_rejects_unknown_progress
+    error = assert_raises(ArgumentError) { DaggerRuby::Config.new(progress: :compact) }
+
+    assert_includes error.message, "Use pretty, auto, plain, tty, dots, or logs"
   end
 
   def test_config_progress_from_env

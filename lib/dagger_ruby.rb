@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "dagger_ruby/version"
+require_relative "dagger_ruby/progress"
+require_relative "dagger_ruby/progress_runner"
 require_relative "dagger_ruby/client"
 require_relative "dagger_ruby/config"
 require_relative "dagger_ruby/errors"
@@ -13,7 +15,14 @@ module DaggerRuby
       return connection_in_current_session(config, &) if dagger_session?
 
       verify_cli_version!(config) if config.verify_version
+      if config.pretty_progress?
+        exit ProgressRunner.new.run(dagger_run_command(config), environment: config.environment)
+      end
       exec(config.environment, *dagger_run_command(config))
+    rescue Interrupt
+      exit 130 if config.pretty_progress?
+
+      raise
     end
 
     private
@@ -84,7 +93,7 @@ module DaggerRuby
     end
 
     def progress_option(config)
-      progress = config&.progress || ENV.fetch("DAGGER_PROGRESS", nil)
+      progress = config&.dagger_progress || ENV.fetch("DAGGER_PROGRESS", nil)
       progress ? ["--progress", progress] : []
     end
   end

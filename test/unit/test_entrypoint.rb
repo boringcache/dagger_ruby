@@ -43,6 +43,23 @@ class TestEntrypoint < Minitest::Test
     ARGV.replace(original_argv)
   end
 
+  def test_dagger_run_command_streams_container_logs
+    command = DaggerRuby.send(:dagger_run_command, DaggerRuby::Config.new(progress: :pretty))
+
+    assert_equal ["dagger", "--progress", "logs", "run"], command.first(4)
+  end
+
+  def test_pretty_progress_exits_cleanly_when_the_session_is_interrupted
+    DaggerRuby.stubs(:dagger_session?).returns(true)
+    DaggerRuby::Client.stubs(:new).returns(stub(close: nil))
+
+    exit_error = assert_raises(SystemExit) do
+      DaggerRuby.connection(DaggerRuby::Config.new(progress: :pretty, verify_version: false)) { raise Interrupt }
+    end
+
+    assert_equal 130, exit_error.status
+  end
+
   def test_connection_environment_pins_release_and_runtime
     config = DaggerRuby::Config.new(runtime: :apple)
 

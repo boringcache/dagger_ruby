@@ -5,6 +5,7 @@ module DaggerRuby
   class Config
     ENGINE_IMAGE = "registry.dagger.io/engine".freeze
     RUNTIMES = %i[auto apple docker].freeze
+    PROGRESS_MODES = %w[auto pretty plain tty dots logs].freeze
 
     attr_reader :log_output, :workdir, :timeout, :quiet, :silent, :progress,
                 :runtime, :runner_host, :dagger_version, :verify_version
@@ -15,7 +16,7 @@ module DaggerRuby
       @timeout = options[:timeout] || 600
       @quiet = options[:quiet] || ENV["DAGGER_QUIET"]&.to_i
       @silent = options[:silent] || ENV["DAGGER_SILENT"] == "true"
-      @progress = options[:progress] || ENV.fetch("DAGGER_PROGRESS", nil)
+      @progress = normalize_progress(options[:progress] || ENV.fetch("DAGGER_PROGRESS", nil))
       @runtime = normalize_runtime(options.fetch(:runtime, ENV.fetch("DAGGER_RUBY_RUNTIME", "auto")))
       @runner_host = options[:runner_host]
       @dagger_version = options.fetch(:dagger_version, DAGGER_VERSION).to_s.delete_prefix("v")
@@ -34,6 +35,22 @@ module DaggerRuby
       "v#{dagger_version}"
     end
 
+    def pretty_progress? = progress == "pretty"
+
+    def streaming_logs? = %w[pretty logs].include?(progress)
+
+    def dagger_progress
+      pretty_progress? ? "logs" : progress
+    end
+
+    def progress_reporter(out: $stdout, enabled: true, environment: ENV)
+      enabled &&= pretty_progress?
+      color = enabled && out.respond_to?(:tty?) && out.tty? && !environment.key?("NO_COLOR") &&
+              environment.fetch("TERM", "") != "dumb"
+      Progress.new(out: out, enabled: enabled, streaming: streaming_logs?, color: color,
+                   relay: enabled && Progress::Relay.from_environment(environment))
+    end
+
     private
 
     def normalize_runtime(value)
@@ -41,6 +58,15 @@ module DaggerRuby
       return runtime if RUNTIMES.include?(runtime)
 
       raise ArgumentError, "Unknown Dagger runtime '#{value}'. Use auto, apple, or docker."
+    end
+
+    def normalize_progress(value)
+      return unless value
+
+      progress = value.to_s.downcase
+      return progress if PROGRESS_MODES.include?(progress)
+
+      raise ArgumentError, "Unknown Dagger progress '#{value}'. Use pretty, auto, plain, tty, dots, or logs."
     end
 
     def resolved_runner_host

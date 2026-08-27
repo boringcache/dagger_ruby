@@ -131,15 +131,21 @@ available options.
 ```ruby
 config = DaggerRuby::Config.new(
   timeout: 300,
-  progress: "plain",
+  progress: :pretty,
   log_output: $stderr,
   runtime: :apple,
 )
 
 DaggerRuby.connection(config) do |client|
-  # Build pipeline
+  progress = config.progress_reporter
+  container = client.container.from("alpine:3.22").with_exec(["apk", "add", "git"])
+  progress.step("[build] RUN apk add git") { container.sync }
 end
 ```
+
+Use `progress: :pretty` for numbered, coloured application steps with live container output.
+Use `:logs` for Dagger's unadorned streaming logs or `:plain` for the complete execution graph.
+The supported modes are `:pretty`, `:auto`, `:plain`, `:tty`, `:dots`, and `:logs`.
 
 `DAGGER_QUIET`, `DAGGER_SILENT`, and `DAGGER_PROGRESS` can provide the same CLI
 preferences through the environment.
