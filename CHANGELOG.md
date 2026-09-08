@@ -6,6 +6,10 @@ All notable changes are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Show an engine startup status in pretty progress mode when Dagger takes more than one second to start.
+
 ## [0.11.0] - 2026-08-27
 
 ### Added

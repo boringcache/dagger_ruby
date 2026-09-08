@@ -58,6 +58,33 @@ class TestProgressRunner < Minitest::Test
     refute_includes output.string, "withExec"
   end
 
+  def test_reports_slow_dagger_startup_before_application_progress
+    output = StringIO.new
+    runner = DaggerRuby::ProgressRunner.new(out: output, environment: {})
+    runner.stubs(:startup_notice_delay).returns(0.01)
+    command = [
+      RbConfig.ruby,
+      "-rjson",
+      "-rsocket",
+      "-e",
+      <<~RUBY,
+        sleep 0.05
+        socket = UNIXSocket.new(ENV.fetch("DAGGER_RUBY_PROGRESS_SOCKET"))
+        socket.puts JSON.generate(type: "start", step: 1, name: "[build] RUN tests")
+        socket.gets
+        socket.close
+      RUBY
+    ]
+
+    status = runner.run(command)
+
+    assert_equal 0, status
+    assert_equal <<~OUTPUT, output.string
+      Dagger is still starting. It may be downloading the engine image.
+      #1 [build] RUN tests
+    OUTPUT
+  end
+
   def test_preserves_dagger_errors_when_the_build_never_starts
     output = StringIO.new
     command = [RbConfig.ruby, "-e", 'warn "dagger: engine failed to start"; exit 1']

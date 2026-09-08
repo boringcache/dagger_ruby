@@ -6,6 +6,7 @@ module DaggerRuby
   class ProgressRunner
     DAGGER_EXEC_HEADING = /\A(?:\e\[[0-9;]*m)*▼ withExec\b/
     INTERRUPT_TIMEOUT = 1
+    STARTUP_NOTICE_DELAY = 1
     TERMINATION_TIMEOUT = 1
 
     def initialize(out: $stderr, result_out: $stdout, environment: ENV)
@@ -35,6 +36,7 @@ module DaggerRuby
         )
         primary_writer.close
         dagger_writer.close
+        startup_notice = report_slow_startup
         _, status = Process.wait2(pid)
         clean_process_group(pid)
         server.close
@@ -56,6 +58,7 @@ module DaggerRuby
         stop_thread(listener)
         stop_thread(primary_reader)
         stop_thread(output_reader)
+        stop_thread(startup_notice)
       end
     end
 
@@ -66,8 +69,7 @@ module DaggerRuby
         socket = server.accept
         renderer = Progress.new(out: @out, color: color?)
         socket.each_line do |line|
-          renderer.render(JSON.parse(line))
-          progress_started!
+          render_progress(renderer, JSON.parse(line))
           socket.puts("ok")
           socket.flush
         end
@@ -75,6 +77,18 @@ module DaggerRuby
         nil
       ensure
         socket&.close
+      end
+    end
+
+    def report_slow_startup
+      Thread.new do
+        sleep startup_notice_delay
+        @started_mutex.synchronize do
+          next if @started
+
+          @out.puts "Dagger is still starting. It may be downloading the engine image."
+          @out.flush
+        end
       end
     end
 
@@ -111,8 +125,11 @@ module DaggerRuby
       end
     end
 
-    def progress_started!
-      @started_mutex.synchronize { @started = true }
+    def render_progress(renderer, event)
+      @started_mutex.synchronize do
+        @started = true
+        renderer.render(event)
+      end
     end
 
     def reset_progress_state!
@@ -206,6 +223,10 @@ module DaggerRuby
 
     def monotonic_time
       Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    end
+
+    def startup_notice_delay
+      STARTUP_NOTICE_DELAY
     end
 
     def exit_status(status)
