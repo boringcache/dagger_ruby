@@ -13,7 +13,7 @@ covers a practical subset of the API instead of Dagger module code generation.
 ## Requirements
 
 - Ruby 3.2 or newer
-- Dagger 0.21.8
+- Dagger 0.21.9
 - Docker, Colima, or another container runtime supported by Dagger
 
 ## Installation
@@ -172,7 +172,7 @@ end
 
 ## Compatibility
 
-The current branch is tested against maintained Ruby releases and Dagger 0.21.8. Dagger's
+The current branch is tested against maintained Ruby releases and Dagger 0.21.9. Dagger's
 GraphQL schema can change between releases, so each supported engine update is
 validated by the live integration suite before release. Earlier Ruby and Dagger
 versions are not covered by the current compatibility contract.
