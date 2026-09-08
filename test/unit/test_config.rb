@@ -14,7 +14,7 @@ class TestConfig < Minitest::Test
     assert_nil config.progress
     assert_equal :auto, config.runtime
     assert_nil config.runner_host
-    assert_equal "0.21.8", config.dagger_version
+    assert_equal "0.21.9", config.dagger_version
     assert config.verify_version
     assert_empty config.environment
   end
@@ -113,7 +113,7 @@ class TestConfig < Minitest::Test
     config = DaggerRuby::Config.new(runtime: "docker")
 
     assert_equal :docker, config.runtime
-    assert_equal "image+docker://registry.dagger.io/engine:v0.21.8",
+    assert_equal "image+docker://registry.dagger.io/engine:v0.21.9",
                  config.environment.fetch("_EXPERIMENTAL_DAGGER_RUNNER_HOST")
   end
 

@@ -6,6 +6,10 @@ All notable changes are recorded here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Update the supported Dagger CLI and engine from 0.21.8 to 0.21.9.
+
 ### Fixed
 
 - Show an engine startup status in pretty progress mode when Dagger takes more than one second to start.

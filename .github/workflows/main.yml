@@ -43,7 +43,7 @@ jobs:
       - name: Run live Dagger contract tests
         uses: dagger/dagger-for-github@27b130bf0f79a7f6fbbbe0fbca6760dc9bb40a77 # v8.4.1
         with:
-          version: "0.21.8"
+          version: "0.21.9"
           dagger-flags: --silent
           verb: run
           args: -- env DAGGER_LIVE_TESTS=1 bundle exec ruby test/integration/test_dagger_engine.rb

@@ -4,6 +4,11 @@ require "rbconfig"
 require_relative "../test_helper"
 
 class TestProgressRunner < Minitest::Test
+  def setup
+    super
+    DaggerRuby::ProgressRunner.any_instance.stubs(:startup_notice_delay).returns(60)
+  end
+
   def test_streams_progress_events_from_the_dagger_process
     output = StringIO.new
     command = [

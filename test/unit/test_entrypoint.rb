@@ -28,7 +28,7 @@ class TestEntrypoint < Minitest::Test
         DaggerRuby.connection(config)
       end
 
-      assert_includes error.message, "expected v0.21.8"
+      assert_includes error.message, "expected v0.21.9"
     end
   end
 
@@ -66,7 +66,7 @@ class TestEntrypoint < Minitest::Test
     assert_equal(
       {
         "_EXPERIMENTAL_DAGGER_RUNNER_HOST" =>
-          "image+apple://registry.dagger.io/engine:v0.21.8",
+          "image+apple://registry.dagger.io/engine:v0.21.9",
       },
       config.environment,
     )
@@ -74,7 +74,7 @@ class TestEntrypoint < Minitest::Test
 
   def test_cli_version_check_accepts_the_supported_release
     status = stub(success?: true)
-    Open3.expects(:capture3).with("dagger", "version").returns(["dagger v0.21.8 darwin/arm64", "", status])
+    Open3.expects(:capture3).with("dagger", "version").returns(["dagger v0.21.9 darwin/arm64", "", status])
 
     DaggerRuby.send(:verify_cli_version!, DaggerRuby::Config.new)
   end
@@ -87,7 +87,7 @@ class TestEntrypoint < Minitest::Test
       DaggerRuby.send(:verify_cli_version!, DaggerRuby::Config.new)
     end
 
-    assert_includes error.message, "install v0.21.8"
+    assert_includes error.message, "install v0.21.9"
   end
 
   private
