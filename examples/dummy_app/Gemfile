@@ -1,5 +1,5 @@
 source "https://rubygems.org"
 
-gem "json", "~> 2.21"
+gem "json", "~> 3.0"
 gem "puma", "~> 8.0"
 gem "sinatra", "~> 4.2"
