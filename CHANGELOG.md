@@ -6,8 +6,11 @@ All notable changes are recorded here. The format follows
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-10-02
+
 ### Changed
 
+- Update development dependencies.
 - Update the supported Dagger CLI and engine from 0.21.8 to 0.21.9.
 
 ### Fixed
