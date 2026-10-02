@@ -18,6 +18,6 @@ group :test do
   gem "minitest", "~> 6.0"
   gem "minitest-reporters", "~> 1.8"
   gem "mocha", "~> 3.1"
-  gem "simplecov", "~> 1.1"
+  gem "simplecov", "~> 1.2.0"
   gem "webmock", "~> 3.26"
 end
