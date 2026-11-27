@@ -38,7 +38,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "base64", "~> 0.3"
-  spec.add_dependency "json", "~> 2.21"
+  spec.add_dependency "json", ">= 2.21", "< 4.0"
   spec.add_dependency "logger", "~> 1.7"
 
   # Development dependencies are managed in Gemfile
