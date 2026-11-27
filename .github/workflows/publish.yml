@@ -27,4 +27,4 @@ jobs:
       - name: Verify release
         run: bin/ci
       - name: Publish with RubyGems trusted publishing
-        uses: rubygems/release-gem@7f9650160c1a4e7989fdc9855807bdbd421d8b6b # v1.4.1
+        uses: rubygems/release-gem@2654a0fe0dc39725c07fe84d7fe863a084f2424e # v1.5.0
